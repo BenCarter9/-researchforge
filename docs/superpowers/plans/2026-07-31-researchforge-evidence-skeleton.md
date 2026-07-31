@@ -6,7 +6,7 @@
 
 **Architecture:** Monorepo with a Next.js/TypeScript frontend (`web/`) and a FastAPI/Python service (`api/`) that does all SEC fetching, structural chunking, deterministic financial math, Claude analysis passes, and citation validation. Next.js rewrites proxy `/api/*` → FastAPI (single origin, no CORS). PostgreSQL is the single datastore; the transcript original lives in local object storage. No embeddings/vector DB — sections are routed structurally to document chunks. Claude passes use `claude-opus-5` with a prompt-cached system prompt.
 
-**Tech Stack:** Next.js 15 (App Router) · TypeScript · Tailwind · shadcn/ui · FastAPI · Python 3.11 · SQLAlchemy 2.x · Pydantic v2 · PostgreSQL 16 (via docker-compose) · `anthropic` Python SDK · `httpx` · `selectolax` (HTML parsing) · `pytest` · `vitest`/Playwright (frontend).
+**Tech Stack:** Next.js 15 (App Router) · TypeScript · Tailwind · shadcn/ui · FastAPI · Python 3.10 (host interpreter; do not require 3.11) · SQLAlchemy 2.x · Pydantic v2 · PostgreSQL 16 (via docker-compose) · `anthropic` Python SDK · `httpx` · `selectolax` (HTML parsing) · `pytest` · `vitest`/Playwright (frontend). Every Python module that uses `X | None` annotations must start with `from __future__ import annotations`.
 
 ## Global Constraints
 
@@ -70,7 +70,7 @@ def health() -> dict[str, str]:
 [project]
 name = "researchforge-api"
 version = "0.1.0"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
   "fastapi>=0.115",
   "uvicorn[standard]>=0.30",
