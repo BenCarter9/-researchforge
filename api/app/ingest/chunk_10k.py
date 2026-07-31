@@ -13,7 +13,10 @@ class Chunk:
 
 
 _ITEM_LABELS = {"1": "item_1", "1A": "item_1a", "7": "item_7", "8": "item_8"}
-_ITEM_RE = re.compile(r"\bItem\s+(1A|1|7|8)\b\.?", re.IGNORECASE)
+# Matches ANY item header (1, 1A, 1B, 2, ..., 7A, 8, ...) so that untracked
+# items still act as boundaries that terminate the preceding tracked section.
+# Only the tracked labels above are kept in the output.
+_ITEM_RE = re.compile(r"\bItem\s+(\d+[A-Z]?)\b\.?", re.IGNORECASE)
 
 
 def chunk_10k(html: str) -> list[Chunk]:
