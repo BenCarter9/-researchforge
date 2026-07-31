@@ -15,3 +15,21 @@ def test_status_rules():
     assert evidence_status("analyst_inference", True, "partial") == "yellow"
     assert evidence_status("management_claim", False, None) == "red"
     assert evidence_status("assumption", False, None) == "gray"
+
+
+def test_status_assumption_precedence_over_contradicts():
+    assert evidence_status("assumption", True, "contradicts") == "gray"
+
+
+def test_status_verified_contradicts_is_red():
+    assert evidence_status("reported_fact", True, "contradicts") == "red"
+
+
+def test_status_verified_inference_is_yellow():
+    assert evidence_status("analyst_inference", True, "inference") == "yellow"
+
+
+def test_status_unknown_entailment_defaults_to_conservative_yellow():
+    # Regression guard: a malformed/unrecognized entailment value must never
+    # render as the most-trusting "green" status.
+    assert evidence_status("reported_fact", True, "bogus_value") == "yellow"
