@@ -18,6 +18,7 @@ def _citation_dict(citation: ClaimCitation | None) -> dict | None:
     if citation is None:
         return None
     return {
+        "id": citation.id,
         "chunk_id": citation.chunk_id,
         "verbatim_quote": citation.verbatim_quote,
         "verbatim_verified": citation.verbatim_verified,

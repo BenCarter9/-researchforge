@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { FinancialsTable } from "@/components/FinancialsTable";
 import type { OpenedCitation } from "@/components/ClaimLine";
 import { SectionView } from "@/components/SectionView";
+import { SourceViewer } from "@/components/SourceViewer";
 import { Card } from "@/components/ui/Card";
 import { getReport } from "@/lib/api";
 import { cn } from "@/lib/cn";
@@ -134,30 +135,13 @@ export default function ReportPage({
           {selectedCitation && (
             <aside className="w-full shrink-0 lg:w-80">
               <Card>
-                <div className="mb-3 flex items-center justify-between">
-                  <h2 className="text-sm font-semibold text-slate-900">Source</h2>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedCitation(null)}
-                    aria-label="Close source panel"
-                    className="text-xs text-slate-500 hover:text-slate-800"
-                  >
-                    Close
-                  </button>
-                </div>
-
-                {/*
-                  Placeholder source panel. Task 7.5 will replace this with
-                  the real SourceViewer, which fetches the chunk by
-                  `selectedCitation.chunkId` and highlights the verbatim
-                  quote within its surrounding context. The state and
-                  `onOpenCitation` wiring here are already in the shape
-                  SourceViewer needs, so that task can drop it in.
-                */}
-                <p className="text-sm text-slate-500">Loading source…</p>
-                <blockquote className="mt-2 border-l-2 border-slate-200 pl-3 text-sm italic text-slate-700">
-                  {selectedCitation.quote}
-                </blockquote>
+                <SourceViewer
+                  chunkId={selectedCitation.chunkId}
+                  quote={selectedCitation.quote}
+                  claimText={selectedCitation.claimText}
+                  citationId={selectedCitation.citationId}
+                  onClose={() => setSelectedCitation(null)}
+                />
               </Card>
             </aside>
           )}

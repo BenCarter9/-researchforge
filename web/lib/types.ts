@@ -12,6 +12,7 @@ export type ClaimType =
   | "unsupported";
 
 export interface Citation {
+  id: string;
   chunk_id: string;
   verbatim_quote: string;
   verbatim_verified: boolean;

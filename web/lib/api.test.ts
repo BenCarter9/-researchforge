@@ -11,6 +11,7 @@ const mockReport: Report = {
         claim_type: "reported_fact",
         evidence_status: "green",
         citation: {
+          id: "cit-1",
           chunk_id: "chunk-1",
           verbatim_quote: "revenue grew 12% year over year",
           verbatim_verified: true,
@@ -72,6 +73,7 @@ describe("getReport", () => {
     expect(report.snapshot.claims[1].citation).toBeNull();
     // And non-null citations retain their fields.
     expect(report.snapshot.claims[0].citation).toEqual({
+      id: "cit-1",
       chunk_id: "chunk-1",
       verbatim_quote: "revenue grew 12% year over year",
       verbatim_verified: true,
