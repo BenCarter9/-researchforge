@@ -70,7 +70,7 @@ def cagr(first: float | None, last: float | None, years: float | None, period: s
     inputs = {"first": first, "last": last, "years": years}
     formula = "(last / first) ** (1 / years) - 1"
     result = None
-    if first is not None and last is not None and years is not None and first != 0 and years != 0:
+    if first is not None and first > 0 and last is not None and years is not None and years != 0:
         result = round((last / first) ** (1 / years) - 1, 4)
     return Calc(metric="cagr", formula=formula, inputs=inputs, result=result, unit="ratio", period=period)
 
@@ -113,12 +113,16 @@ def _row_series(key: str, facts: dict[str, dict[str, float]]) -> dict[str, float
 
 
 def _row_yoy(series: dict[str, float], years_sorted: list[str]) -> float | str:
-    # Two most recent years (from the full column set) where this row has
-    # BOTH values.
-    years_with_values = [y for y in years_sorted if y in series]
-    if len(years_with_values) < 2:
+    # YoY always ties to the table's two most-recent COLUMNS (the last two
+    # entries of the ascending fiscal-year column list), using this row's
+    # values for those two columns specifically. A row missing either of
+    # those two columns reports "unavailable" rather than falling back to
+    # an older, stale delta.
+    if len(years_sorted) < 2:
         return _UNAVAILABLE
-    prior, latest = years_with_values[-2], years_with_values[-1]
+    latest, prior = years_sorted[-1], years_sorted[-2]
+    if latest not in series or prior not in series:
+        return _UNAVAILABLE
     return growth(series[latest], series[prior]).result
 
 

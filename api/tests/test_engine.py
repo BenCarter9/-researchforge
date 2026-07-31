@@ -65,6 +65,12 @@ def test_cagr_missing_or_zero_first_or_zero_years_is_none():
     assert cagr(1000.0, 1210.0, 0).result is None
 
 
+def test_cagr_negative_first_is_none_not_raising():
+    # (last / first) ** (1 / years) with a negative first yields a complex
+    # number in Python; this must be guarded rather than raising.
+    assert cagr(-100.0, 200.0, 3).result is None
+
+
 # --- Calc shape / auditability -------------------------------------------------
 
 
@@ -131,6 +137,23 @@ def test_build_table_row_order_and_columns():
         "Total debt",
         "Shares outstanding",
     ]
+
+
+def test_build_table_yoy_ties_to_newest_two_columns_not_rows_own_latest_data():
+    # revenue has all three years; capex is missing the newest column
+    # (FY2025). capex's yoy must be "unavailable" -- it must NOT fall back
+    # to an older FY2023-vs-FY2024 delta just because that data exists.
+    facts = {
+        "revenue": {"FY2023": 800.0, "FY2024": 1000.0, "FY2025": 1180.0},
+        "capex": {"FY2023": 100.0, "FY2024": 150.0},
+    }
+    table = build_table(facts)
+
+    revenue_row = next(row for row in table if row["key"] == "revenue")
+    assert revenue_row["yoy"] == growth(1180.0, 1000.0).result
+
+    capex_row = next(row for row in table if row["key"] == "capex")
+    assert capex_row["yoy"] == "unavailable"
 
 
 def test_build_table_computes_fcf_when_both_present():
