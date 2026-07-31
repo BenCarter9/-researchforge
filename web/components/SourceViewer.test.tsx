@@ -185,6 +185,46 @@ describe("SourceViewer", () => {
     expect(screen.getByText(/3.*4/)).toBeInTheDocument();
   });
 
+  it("resets stale marked state when a new citation shares the same chunk", async () => {
+    mockGetChunk.mockResolvedValue(baseChunk);
+    mockMarkCitation.mockResolvedValue({ ok: true });
+
+    const { rerender } = render(
+      <SourceViewer
+        chunkId="c1"
+        quote="BETA"
+        claimText="Revenue grew."
+        citationId="cit-A"
+      />
+    );
+
+    await screen.findByText("BETA", { selector: "mark" });
+
+    fireEvent.click(screen.getByRole("button", { name: /mark valid/i }));
+
+    await waitFor(() =>
+      expect(mockMarkCitation).toHaveBeenCalledWith("cit-A", true)
+    );
+    expect(await screen.findByText(/marked as valid/i)).toBeInTheDocument();
+
+    // Re-render the same mounted component for a different citation that
+    // happens to reference the SAME chunk_id. Because chunkId is unchanged,
+    // a fix that only depends on [chunkId] would fail to reset `marked`.
+    rerender(
+      <SourceViewer
+        chunkId="c1"
+        quote="gamma"
+        claimText="Costs fell."
+        citationId="cit-B"
+      />
+    );
+
+    await screen.findByText("gamma", { selector: "mark" });
+
+    expect(screen.queryByText(/marked as valid/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/marked as invalid/i)).not.toBeInTheDocument();
+  });
+
   it("calls onClose when the close button is clicked", async () => {
     mockGetChunk.mockResolvedValue(baseChunk);
     const onClose = vi.fn();

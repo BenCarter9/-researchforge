@@ -62,7 +62,9 @@ export function SourceViewer({
     return () => {
       cancelled = true;
     };
-  }, [chunkId]);
+  }, [chunkId, citationId]);
+
+  const quoteIndex = chunk && quote.length > 0 ? chunk.text.indexOf(quote) : -1;
 
   async function handleMark(valid: boolean) {
     setMarkError(null);
@@ -123,13 +125,12 @@ export function SourceViewer({
             </p>
             <p className="text-sm leading-relaxed text-slate-800">
               {(() => {
-                const index = chunk.text.indexOf(quote);
-                if (quote.length === 0 || index === -1) {
+                if (quoteIndex === -1) {
                   return chunk.text;
                 }
-                const before = chunk.text.slice(0, index);
-                const match = chunk.text.slice(index, index + quote.length);
-                const after = chunk.text.slice(index + quote.length);
+                const before = chunk.text.slice(0, quoteIndex);
+                const match = chunk.text.slice(quoteIndex, quoteIndex + quote.length);
+                const after = chunk.text.slice(quoteIndex + quote.length);
                 return (
                   <>
                     {before}
@@ -139,7 +140,7 @@ export function SourceViewer({
                 );
               })()}
             </p>
-            {chunk.text.indexOf(quote) === -1 && quote.length > 0 && (
+            {quoteIndex === -1 && quote.length > 0 && (
               <p className="mt-1 text-xs italic text-slate-400">
                 quote not located in source
               </p>
