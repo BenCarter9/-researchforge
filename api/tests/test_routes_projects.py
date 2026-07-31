@@ -3,8 +3,9 @@ from __future__ import annotations
 import os
 import tempfile
 
+import pytest
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
@@ -12,6 +13,7 @@ from app.db import Base
 from app.deps import get_claude_client, get_db, get_sec_client
 from app.llm.schema import GeneratedClaim, SectionResult
 from app.main import app
+from app.models import Document, DocumentChunk
 from app.pipeline.runner import STAGES
 from app.sec.client import Filing, TickerNotFound
 
@@ -120,11 +122,25 @@ def _override_get_claude_client() -> _FakeClaudeClient:
     return _FakeClaudeClient()
 
 
-app.dependency_overrides[get_db] = _override_get_db
-app.dependency_overrides[get_sec_client] = _override_get_sec_client
-app.dependency_overrides[get_claude_client] = _override_get_claude_client
-
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True, scope="module")
+def _dependency_overrides():
+    """Install this module's fake dependency overrides on the shared `app`
+    singleton before any test in this module runs, and remove them again
+    once the module's tests finish - so they never leak into other test
+    modules (route-test modules for other resources share the same `app`).
+    """
+    prev = dict(app.dependency_overrides)
+    app.dependency_overrides[get_db] = _override_get_db
+    app.dependency_overrides[get_sec_client] = _override_get_sec_client
+    app.dependency_overrides[get_claude_client] = _override_get_claude_client
+    try:
+        yield
+    finally:
+        app.dependency_overrides.clear()
+        app.dependency_overrides.update(prev)
 
 
 # --- tests -----------------------------------------------------------------
@@ -171,6 +187,48 @@ def test_upload_transcript_json_returns_positive_chunk_count():
     assert "document_id" in body
     assert isinstance(body["chunk_count"], int)
     assert body["chunk_count"] >= 1
+
+
+def test_upload_transcript_multipart_returns_positive_chunk_count():
+    create_resp = client.post("/api/projects", json={"company": "Acme", "ticker": "AAPL"})
+    project_id = create_resp.json()["project_id"]
+
+    transcript_text = (
+        "Jane Doe — Chief Executive Officer\n"
+        "Thank you all for joining. Revenue grew nicely this quarter.\n"
+        "Question-and-Answer Session\n"
+        "Operator: We will now begin the Q&A session.\n"
+        "Analyst: Can you comment on guidance?\n"
+    )
+
+    resp = client.post(
+        f"/api/projects/{project_id}/transcript",
+        files={"file": ("transcript.txt", transcript_text.encode("utf-8"), "text/plain")},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert "document_id" in body
+    document_id = body["document_id"]
+    assert isinstance(body["chunk_count"], int)
+    assert body["chunk_count"] >= 1
+
+    # Verify the stored rows actually landed in the DB, not just the
+    # response body's claimed count.
+    db = _TestingSessionLocal()
+    try:
+        document = db.get(Document, document_id)
+        assert document is not None
+        assert document.project_id == project_id
+        assert document.type == "transcript"
+        assert document.source == "upload"
+
+        stored_chunks = db.scalars(
+            select(DocumentChunk).where(DocumentChunk.document_id == document_id)
+        ).all()
+        assert len(stored_chunks) == body["chunk_count"]
+        assert len(stored_chunks) >= 1
+    finally:
+        db.close()
 
 
 def test_status_empty_before_analyze_then_populated_after():
