@@ -69,6 +69,7 @@ class ClaimCitation(Base):
     verbatim_quote: Mapped[str] = mapped_column(Text)
     verbatim_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     entailment: Mapped[str | None] = mapped_column(String, nullable=True)  # supports|partial|inference|contradicts
+    user_marked_valid: Mapped[bool | None] = mapped_column(Boolean, nullable=True, default=None)
     claim: Mapped[Claim] = relationship(back_populates="citations")
     chunk: Mapped[DocumentChunk] = relationship()
 
