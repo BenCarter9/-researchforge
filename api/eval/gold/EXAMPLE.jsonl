@@ -1,0 +1,6 @@
+{"type": "financial_fact", "concept": "revenue", "period": "FY2025", "value": 1200.0}
+{"type": "financial_fact", "concept": "revenue", "period": "FY2024", "value": 900.0}
+{"type": "financial_fact", "concept": "net_income", "period": "FY2025", "value": 150.0}
+{"type": "financial_fact", "concept": "eps_diluted", "period": "FY2025", "value": 2.5}
+{"type": "qa", "question": "What drove the FY2025 revenue growth?", "expected": "New store openings and higher same-store sales in North America."}
+{"type": "qa", "question": "What is management's stated capital allocation priority?", "expected": "Reinvestment in store growth, then share buybacks."}
