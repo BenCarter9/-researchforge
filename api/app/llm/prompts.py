@@ -49,9 +49,12 @@ Before finalizing, identify the strongest evidence against your conclusion.
 
 OBJECTIVES: dict[str, str] = {
     "snapshot": (
-        "Produce a concise company snapshot grounded in the supplied XBRL facts "
-        "and Item 1 business description. State only what the evidence supports; "
-        "do not editorialize about valuation or outlook."
+        "Produce a concise company snapshot grounded in the supplied Item 1 "
+        "business description: company, industry, business description, and "
+        "the primary research question. Do not cite or reference XBRL data or "
+        "financial figures — those are surfaced separately in the Financials "
+        "table. State only what the evidence supports; do not editorialize "
+        "about valuation or outlook."
     ),
     "business": (
         "Describe the business using the supplied Item 1 chunks: products and "

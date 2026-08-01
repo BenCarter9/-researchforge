@@ -85,6 +85,38 @@ describe("SourceViewer", () => {
     expect(await screen.findByText("chunk not found")).toBeInTheDocument();
   });
 
+  it("highlights across whitespace differences (multiple spaces / newline) between the quote and the chunk text", async () => {
+    const whitespaceChunk: Chunk = {
+      ...baseChunk,
+      text: "Alpha   BETA\ngamma delta",
+    };
+    mockGetChunk.mockResolvedValue(whitespaceChunk);
+
+    render(
+      <SourceViewer
+        chunkId="c1"
+        quote="BETA gamma"
+        claimText="Revenue grew."
+        citationId="cit-1"
+      />
+    );
+
+    await waitFor(() => expect(mockGetChunk).toHaveBeenCalledWith("c1"));
+
+    const marks = await waitFor(() => {
+      const found = document.querySelectorAll("mark");
+      expect(found).toHaveLength(1);
+      return found;
+    });
+    expect(marks).toHaveLength(1);
+    expect(marks[0].tagName).toBe("MARK");
+    // The highlighted span is the ORIGINAL text (with its internal
+    // whitespace/newline preserved), not the normalized quote.
+    expect(marks[0].textContent).toBe("BETA\ngamma");
+
+    expect(screen.queryByText(/quote not located/i)).not.toBeInTheDocument();
+  });
+
   it("does not highlight and shows a note when the quote is not found in the chunk text", async () => {
     mockGetChunk.mockResolvedValue(baseChunk);
 

@@ -29,6 +29,34 @@ function pageRangeLabel(chunk: Chunk): string | null {
 
 type MarkedState = "valid" | "invalid" | null;
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+interface QuoteMatch {
+  start: number;
+  length: number;
+}
+
+// Locate `quote` inside `text` tolerating whitespace differences (the
+// backend's verbatim_verify collapses runs of whitespace, including
+// newlines, before comparing). Returns the span in the ORIGINAL text that
+// matched, so the highlight covers the exact original characters (e.g. a
+// quote written with single spaces can match text containing a newline).
+function findQuoteMatch(text: string, quote: string): QuoteMatch | null {
+  if (!quote) return null;
+  const pattern = escapeRegExp(quote).replace(/\s+/g, "\\s+");
+  let regex: RegExp;
+  try {
+    regex = new RegExp(pattern);
+  } catch {
+    return null;
+  }
+  const match = regex.exec(text);
+  if (!match) return null;
+  return { start: match.index, length: match[0].length };
+}
+
 export function SourceViewer({
   chunkId,
   quote,
@@ -64,7 +92,7 @@ export function SourceViewer({
     };
   }, [chunkId, citationId]);
 
-  const quoteIndex = chunk && quote.length > 0 ? chunk.text.indexOf(quote) : -1;
+  const quoteMatch = chunk && quote.length > 0 ? findQuoteMatch(chunk.text, quote) : null;
 
   async function handleMark(valid: boolean) {
     setMarkError(null);
@@ -125,12 +153,15 @@ export function SourceViewer({
             </p>
             <p className="text-sm leading-relaxed text-slate-800">
               {(() => {
-                if (quoteIndex === -1) {
+                if (!quoteMatch) {
                   return chunk.text;
                 }
-                const before = chunk.text.slice(0, quoteIndex);
-                const match = chunk.text.slice(quoteIndex, quoteIndex + quote.length);
-                const after = chunk.text.slice(quoteIndex + quote.length);
+                const before = chunk.text.slice(0, quoteMatch.start);
+                const match = chunk.text.slice(
+                  quoteMatch.start,
+                  quoteMatch.start + quoteMatch.length
+                );
+                const after = chunk.text.slice(quoteMatch.start + quoteMatch.length);
                 return (
                   <>
                     {before}
@@ -140,7 +171,7 @@ export function SourceViewer({
                 );
               })()}
             </p>
-            {quoteIndex === -1 && quote.length > 0 && (
+            {!quoteMatch && quote.length > 0 && (
               <p className="mt-1 text-xs italic text-slate-400">
                 quote not located in source
               </p>

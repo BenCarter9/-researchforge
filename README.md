@@ -26,10 +26,13 @@ verifiably traceable to their sources rather than on breadth of analysis
     writes prose and points at evidence.
   - **Claim-level citation verification**: each generated claim is checked
     against a verbatim quote from its source chunk and gets one of four
-    evidence statuses — green (verified), yellow (source found but not an
-    exact match), red (no supporting source), gray (not applicable, e.g.
-    a data point marked unavailable). There is no numeric confidence
-    score — only these four states.
+    evidence statuses — green (verified), yellow (inference / partial
+    support), red (not verbatim-verified — no exact, whitespace-normalized
+    match for the quote in its source chunk), gray (not applicable, e.g.
+    a data point marked unavailable). Yellow is produced by Layer-2 LLM
+    entailment checking (partial/inference support for an otherwise
+    verified quote), which is deferred in this slice, so yellow is not yet
+    emitted. There is no numeric confidence score — only these four states.
 - **PostgreSQL 16** (via `docker-compose.yml`) — the single datastore for
   projects, documents, chunks, financial facts, claims, and citations.
 
