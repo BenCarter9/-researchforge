@@ -17,6 +17,12 @@ dependencies = [
 [project.optional-dependencies]
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "respx>=0.21"]
 
+[tool.setuptools]
+# Flat layout has two top-level dirs (app/, eval/); only app/ is the
+# installable package. eval/ is invoked as `python -m eval.run_eval` with
+# api/ as the cwd, so it doesn't need to be part of the built package.
+packages = ["app"]
+
 [tool.pytest.ini_options]
 pythonpath = ["."]
 asyncio_mode = "auto"
