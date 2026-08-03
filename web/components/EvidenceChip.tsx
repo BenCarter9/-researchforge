@@ -6,37 +6,39 @@ export interface EvidenceChipProps {
 }
 
 // The evidence signal is a traffic light with a text label, never a numeric
-// confidence score. Each status maps to a distinct color and a human label —
-// do not add a number anywhere in this component.
-const config: Record<EvidenceStatus, { label: string; className: string }> = {
+// confidence score. Compact status mark + label — not a rounded pill cluster.
+const config: Record<
+  EvidenceStatus,
+  { label: string; markClass: string; textClass: string }
+> = {
   green: {
     label: "Supported",
-    className: "border-green-200 bg-green-100 text-green-800",
+    markClass: "bg-[var(--good)]",
+    textClass: "text-[var(--good)]",
   },
   yellow: {
     label: "Inference / partial",
-    className: "border-amber-200 bg-amber-100 text-amber-800",
+    markClass: "bg-[var(--warn)]",
+    textClass: "text-[var(--warn)]",
   },
   red: {
     label: "Unsupported",
-    className: "border-red-200 bg-red-100 text-red-800",
+    markClass: "bg-[var(--bad)]",
+    textClass: "text-[var(--bad)]",
   },
   gray: {
     label: "Assumption",
-    className: "border-gray-200 bg-gray-100 text-gray-800",
+    markClass: "bg-mute",
+    textClass: "text-mute",
   },
 };
 
 export function EvidenceChip({ status }: EvidenceChipProps) {
-  const { label, className } = config[status];
+  const { label, markClass, textClass } = config[status];
 
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium",
-        className
-      )}
-    >
+    <span className={cn("inline-flex items-center gap-1.5 text-xs font-medium", textClass)}>
+      <span aria-hidden className={cn("h-1.5 w-1.5 shrink-0 rounded-sm", markClass)} />
       {label}
     </span>
   );

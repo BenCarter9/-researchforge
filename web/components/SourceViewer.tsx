@@ -108,15 +108,15 @@ export function SourceViewer({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold text-slate-900">Source</h2>
+    <div className="animate-slide-in space-y-4 rounded-sm bg-panel p-5 text-surface shadow-none">
+      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+        <h2 className="font-display text-lg tracking-tight text-surface">Source</h2>
         {onClose && (
           <button
             type="button"
             onClick={onClose}
             aria-label="Close source panel"
-            className="text-xs text-slate-500 hover:text-slate-800"
+            className="text-xs text-surface/60 transition-colors hover:text-surface"
           >
             Close
           </button>
@@ -124,34 +124,36 @@ export function SourceViewer({
       </div>
 
       {loadError && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-300">
           {loadError}
         </p>
       )}
 
       {!chunk && !loadError && (
-        <p className="text-sm text-slate-500">Loading source…</p>
+        <p className="text-sm text-surface/50">Loading source…</p>
       )}
 
       {chunk && (
         <>
-          <div className="text-xs text-slate-500">
+          <div className="text-xs tracking-wide text-surface/50">
             <p>{humanizeSectionLabel(chunk.section_label)}</p>
             {pageRangeLabel(chunk) && <p>{pageRangeLabel(chunk)}</p>}
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <p className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-accent">
               Supports
             </p>
-            <p className="text-sm text-slate-700">{claimText}</p>
+            <p className="mt-1 font-serif text-sm leading-relaxed text-surface/90">
+              {claimText}
+            </p>
           </div>
 
           <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <p className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-accent">
               Passage
             </p>
-            <p className="text-sm leading-relaxed text-slate-800">
+            <p className="mt-1 max-h-[50vh] overflow-y-auto font-serif text-sm leading-relaxed text-surface/85">
               {(() => {
                 if (!quoteMatch) {
                   return chunk.text;
@@ -165,25 +167,27 @@ export function SourceViewer({
                 return (
                   <>
                     {before}
-                    <mark className="rounded bg-amber-200 px-0.5">{match}</mark>
+                    <mark className="animate-mark-pulse rounded-sm bg-amber-200/90 px-0.5 text-ink">
+                      {match}
+                    </mark>
                     {after}
                   </>
                 );
               })()}
             </p>
             {!quoteMatch && quote.length > 0 && (
-              <p className="mt-1 text-xs italic text-slate-400">
+              <p className="mt-1 text-xs italic text-surface/40">
                 quote not located in source
               </p>
             )}
           </div>
 
-          <div className="flex items-center gap-2 pt-1">
+          <div className="flex items-center gap-2 border-t border-white/10 pt-3">
             <button
               type="button"
               disabled={isMarking}
               onClick={() => handleMark(true)}
-              className="inline-flex items-center rounded-md border border-green-300 bg-green-50 px-2 py-1 text-xs font-medium text-green-800 transition-colors hover:bg-green-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center rounded-sm border border-[var(--good)]/40 px-2.5 py-1 text-xs font-medium text-[var(--good)] transition-colors hover:bg-[var(--good)]/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Mark valid
             </button>
@@ -191,20 +195,20 @@ export function SourceViewer({
               type="button"
               disabled={isMarking}
               onClick={() => handleMark(false)}
-              className="inline-flex items-center rounded-md border border-red-300 bg-red-50 px-2 py-1 text-xs font-medium text-red-800 transition-colors hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex items-center rounded-sm border border-red-400/40 px-2.5 py-1 text-xs font-medium text-red-300 transition-colors hover:bg-red-400/10 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Mark invalid
             </button>
           </div>
 
           {marked && (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-surface/50">
               Marked as {marked === "valid" ? "valid" : "invalid"}.
             </p>
           )}
 
           {markError && (
-            <p role="alert" className="text-sm text-red-600">
+            <p role="alert" className="text-sm text-red-300">
               {markError}
             </p>
           )}

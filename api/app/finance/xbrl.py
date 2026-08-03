@@ -92,4 +92,19 @@ def extract_facts(company_facts: dict, years: int = 3) -> dict[str, dict[str, fl
         }
         result["total_debt"] = _limit_to_recent_years(debt_series, years)
 
+    # Some filers (e.g. Costco) omit GrossProfit. Derive it from revenue − COGS
+    # when both sides are present so margin rows are not stuck on unavailable.
+    if "gross_profit" not in result:
+        revenue = result.get("revenue", {})
+        cogs = _limit_to_recent_years(
+            _annual_series(company_facts, "CostOfGoodsAndServicesSold", "USD"), years
+        )
+        if revenue and cogs:
+            derived = {
+                fy: revenue[fy] - cogs[fy]
+                for fy in set(revenue) & set(cogs)
+            }
+            if derived:
+                result["gross_profit"] = derived
+
     return result

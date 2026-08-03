@@ -22,28 +22,45 @@ def evidence_status(claim_type: str, verified: bool, entailment: str | None) -> 
     """
     Map claim type, verification status, and entailment type to a status color.
 
+    When entailment is None (Layer-2 deferred), claim_type supplies provisional
+    semantics so verified management/inference quotes are not painted green.
+
     Rules:
     - assumption → gray (regardless of verified/entailment)
+    - unsupported → red (regardless of verified/entailment)
     - not verified → red
-    - verified + entailment in (None, "supports") → green
-    - verified + entailment in ("partial", "inference") → yellow
     - verified + entailment == "contradicts" → red
+    - verified + entailment in ("partial", "inference") → yellow
+    - verified + entailment in ("supports",) → green (Layer-2 override)
+    - verified + entailment is None → claim_type provisional:
+        reported_fact → green; management_claim / analyst_inference → yellow
     - verified + any other/unrecognized entailment → yellow (conservative;
       never default unknown/malformed entailment values to green)
     """
     if claim_type == "assumption":
         return "gray"
 
+    if claim_type == "unsupported":
+        return "red"
+
     if not verified:
         return "red"
 
     # verified is True
-    if entailment in (None, "supports"):
-        return "green"
-    elif entailment == "contradicts":
+    if entailment == "contradicts":
         return "red"
+    if entailment in ("partial", "inference"):
+        return "yellow"
+    if entailment == "supports":
+        return "green"
 
-    # entailment in ("partial", "inference"), or any unrecognized/malformed
-    # value: conservative fallback. A trust signal must never default an
-    # unknown entailment to the most-trusting color.
+    if entailment is None:
+        if claim_type == "reported_fact":
+            return "green"
+        if claim_type in ("management_claim", "analyst_inference"):
+            return "yellow"
+        # Unknown claim_type with a verified quote: never default to green.
+        return "yellow"
+
+    # Unrecognized/malformed entailment: conservative fallback.
     return "yellow"

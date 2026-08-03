@@ -23,13 +23,11 @@ export function ClaimLine({ claim, onOpenCitation }: ClaimLineProps) {
   const citation = claim.citation;
 
   return (
-    <li className="border-b border-slate-100 py-3 last:border-b-0">
-      <p className="text-sm text-slate-900">{claim.claim_text}</p>
-      <div className="mt-1.5 flex flex-wrap items-center gap-2">
+    <li className="border-b border-rule/70 py-5 last:border-b-0 animate-fade-up">
+      <p className="font-serif text-[1.05rem] leading-relaxed text-ink">{claim.claim_text}</p>
+      <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5">
         <EvidenceChip status={claim.evidence_status} />
-        <span className="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs font-medium text-slate-600">
-          {humanizeClaimType(claim.claim_type)}
-        </span>
+        <span className="text-xs tracking-wide text-mute">{humanizeClaimType(claim.claim_type)}</span>
         {citation && (
           <button
             type="button"
@@ -41,7 +39,7 @@ export function ClaimLine({ claim, onOpenCitation }: ClaimLineProps) {
                 citationId: citation.id,
               })
             }
-            className="inline-flex items-center rounded-full border border-slate-300 px-2 py-0.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            className="text-xs font-medium text-accent underline-offset-4 transition-colors hover:text-ink hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
           >
             Source
           </button>

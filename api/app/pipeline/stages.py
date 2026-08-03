@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy import select
 
-from app.finance.engine import build_table
+from app.finance.engine import build_table, render_table_text
 from app.finance.xbrl import extract_facts
 from app.ids import new_id
 from app.ingest.chunk_10k import chunk_10k
@@ -22,8 +22,9 @@ from app.sec.client import SecClient
 
 # Which chunk section_labels feed each generated section.
 _SECTION_ROUTING: dict[str, list[str]] = {
-    "snapshot": ["item_1"],
-    "business": ["item_1"],
+    "snapshot": ["item_1", "prepared_remarks_ceo", "financial_table"],
+    "business": ["item_1", "prepared_remarks_ceo", "prepared_remarks_cfo"],
+    "financials": ["item_7", "prepared_remarks_cfo", "financial_table"],
     "risks": ["item_1a", "qa"],
 }
 
@@ -43,7 +44,7 @@ def chunks_for(session, project_id: str, labels: list[str]) -> list[dict]:
 
 
 def build_deps(sec: SecClient, claude: ClaudeClient) -> PipelineDeps:
-    """Wire the 8 pipeline stages against a concrete SecClient/ClaudeClient.
+    """Wire the pipeline stages against a concrete SecClient/ClaudeClient.
 
     Each stage function reads/writes via ctx.session (the DB session for
     this pipeline run) and ctx.data (in-memory scratch space carried
@@ -99,7 +100,20 @@ def build_deps(sec: SecClient, claude: ClaudeClient) -> PipelineDeps:
                         value=value,
                     )
                 )
-        ctx.data["financial_table"] = build_table(facts)
+        table = build_table(facts)
+        ctx.data["financial_table"] = table
+
+        # Persist a citeable plain-text rendering so Snapshot/Financials can
+        # ground claims on supplied XBRL figures without LLM arithmetic.
+        document_id = ctx.data["tenk_document_id"]
+        ctx.session.add(
+            DocumentChunk(
+                id=new_id(),
+                document_id=document_id,
+                section_label="financial_table",
+                text=render_table_text(table),
+            )
+        )
         ctx.session.commit()
 
     def _make_generate_section(section: str):
@@ -161,6 +175,7 @@ def build_deps(sec: SecClient, claude: ClaudeClient) -> PipelineDeps:
         financials=financials,
         generate_snapshot=_make_generate_section("snapshot"),
         generate_business=_make_generate_section("business"),
+        generate_financials=_make_generate_section("financials"),
         generate_risks=_make_generate_section("risks"),
         validate=validate,
     )

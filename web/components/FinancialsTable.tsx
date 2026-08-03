@@ -17,30 +17,46 @@ function yearKeys(table: FinancialRow[]): string[] {
   return Array.from(keys).sort();
 }
 
+function isRatioKey(key: string): boolean {
+  return key.endsWith("_margin") || key === "revenue_cagr";
+}
+
 function formatNumber(value: number): string {
   return value.toLocaleString("en-US");
 }
 
+function formatRatio(value: number): string {
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+// Backend YoY is a growth ratio (0.18), not a percentage point.
 function formatYoy(value: number): string {
-  const formatted = value.toFixed(1);
-  return value >= 0 ? `+${formatted}%` : `${formatted}%`;
+  const pct = value * 100;
+  const formatted = pct.toFixed(1);
+  return pct >= 0 ? `+${formatted}%` : `${formatted}%`;
 }
 
 // Missing financial facts must always render as the literal word
 // "unavailable" — never 0 and never a blank cell.
-function ValueCell({ value }: { value: number | "unavailable" }) {
+function ValueCell({
+  value,
+  ratio,
+}: {
+  value: number | "unavailable";
+  ratio: boolean;
+}) {
   if (value === "unavailable") {
-    return <span className="text-slate-400">unavailable</span>;
+    return <span className="text-mute/70">unavailable</span>;
   }
-  return <span>{formatNumber(value)}</span>;
+  return <span>{ratio ? formatRatio(value) : formatNumber(value)}</span>;
 }
 
 function YoyCell({ value }: { value: number | "unavailable" }) {
   if (value === "unavailable") {
-    return <span className="text-slate-400">unavailable</span>;
+    return <span className="text-mute/70">unavailable</span>;
   }
   const colorClass =
-    value > 0 ? "text-emerald-700" : value < 0 ? "text-red-700" : "text-slate-700";
+    value > 0 ? "text-[var(--good)]" : value < 0 ? "text-[var(--bad)]" : "text-ink";
   return <span className={colorClass}>{formatYoy(value)}</span>;
 }
 
@@ -49,34 +65,40 @@ export function FinancialsTable({ table }: FinancialsTableProps) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-max border-collapse text-sm">
+      <table className="w-full min-w-max border-collapse font-sans text-sm">
         <thead>
-          <tr className="border-b border-slate-200 text-xs font-medium uppercase tracking-wide text-slate-500">
-            <th scope="col" className="py-2 pr-4 text-left">
+          <tr className="border-b border-rule text-[0.7rem] font-medium uppercase tracking-[0.12em] text-mute">
+            <th scope="col" className="py-3 pr-4 text-left">
               Metric
             </th>
             {years.map((year) => (
-              <th key={year} scope="col" className="py-2 pr-4 text-right">
+              <th key={year} scope="col" className="py-3 pr-4 text-right">
                 {year}
               </th>
             ))}
-            <th scope="col" className="py-2 pr-4 text-right">
+            <th scope="col" className="py-3 pr-4 text-right">
               YoY
             </th>
           </tr>
         </thead>
         <tbody>
           {table.map((row) => (
-            <tr key={row.key} className="border-b border-slate-100 last:border-b-0">
-              <th scope="row" className="py-2 pr-4 text-left font-normal text-slate-900">
+            <tr key={row.key} className="border-b border-rule/60 last:border-b-0">
+              <th
+                scope="row"
+                className="py-2.5 pr-4 text-left font-normal text-ink"
+              >
                 {row.metric}
               </th>
               {years.map((year) => (
-                <td key={year} className="py-2 pr-4 text-right tabular-nums">
-                  <ValueCell value={row.values[year] ?? "unavailable"} />
+                <td key={year} className="py-2.5 pr-4 text-right font-sans tabular-nums">
+                  <ValueCell
+                    value={row.values[year] ?? "unavailable"}
+                    ratio={isRatioKey(row.key)}
+                  />
                 </td>
               ))}
-              <td className="py-2 pr-4 text-right tabular-nums">
+              <td className="py-2.5 pr-4 text-right font-sans tabular-nums">
                 <YoyCell value={row.yoy} />
               </td>
             </tr>

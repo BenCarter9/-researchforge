@@ -8,11 +8,15 @@ export interface SectionViewProps {
 
 export function SectionView({ section, onOpenCitation }: SectionViewProps) {
   if (section.claims.length === 0) {
-    return <p className="text-sm text-slate-500">No claims in this section.</p>;
+    return (
+      <p className="px-3 py-8 font-sans text-sm text-mute sm:px-4">
+        No claims in this section.
+      </p>
+    );
   }
 
   return (
-    <ul className="divide-y divide-slate-100">
+    <ul className="px-3 sm:px-4">
       {section.claims.map((claim) => (
         <ClaimLine key={claim.id} claim={claim} onOpenCitation={onOpenCitation} />
       ))}

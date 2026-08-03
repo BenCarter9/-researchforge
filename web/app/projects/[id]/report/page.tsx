@@ -6,7 +6,6 @@ import { FinancialsTable } from "@/components/FinancialsTable";
 import type { OpenedCitation } from "@/components/ClaimLine";
 import { SectionView } from "@/components/SectionView";
 import { SourceViewer } from "@/components/SourceViewer";
-import { Card } from "@/components/ui/Card";
 import { getReport } from "@/lib/api";
 import { cn } from "@/lib/cn";
 import type { Report } from "@/lib/types";
@@ -63,78 +62,98 @@ export default function ReportPage({
   }, [projectId]);
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12">
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">Report</h1>
-
+    <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-14">
       {error && (
-        <p role="alert" className="mb-4 text-sm text-red-600">
+        <p role="alert" className="mb-6 text-sm text-[var(--bad)]">
           {error}
         </p>
       )}
 
       {!report && !error && (
-        <p className="text-sm text-slate-500">Loading report…</p>
+        <p className="font-sans text-sm text-mute">Loading report…</p>
       )}
 
       {report && (
-        <div className="flex flex-col gap-6 lg:flex-row">
-          <div className="min-w-0 flex-1">
-            <nav
-              aria-label="Report sections"
-              className="mb-6 flex gap-2 border-b border-slate-200"
-            >
-              {TABS.map((tab) => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  aria-current={activeTab === tab.id ? "page" : undefined}
-                  className={cn(
-                    "border-b-2 px-3 py-2 text-sm font-medium transition-colors",
-                    activeTab === tab.id
-                      ? "border-slate-900 text-slate-900"
-                      : "border-transparent text-slate-500 hover:text-slate-800"
-                  )}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </nav>
+        <>
+          <header className="mb-10 animate-fade-up border-b border-rule pb-8">
+            <p className="font-sans text-[0.7rem] font-medium uppercase tracking-[0.18em] text-mute">
+              ResearchForge
+            </p>
+            <h1 className="mt-3 font-display text-5xl tracking-tight text-ink sm:text-6xl">
+              {report.project.ticker}
+            </h1>
+            <p className="mt-2 max-w-2xl font-serif text-xl text-mute">
+              {report.project.company}
+            </p>
+            {report.project.research_date && (
+              <p className="mt-3 font-sans text-xs tracking-wide text-mute">
+                Research date {report.project.research_date}
+              </p>
+            )}
+          </header>
 
-            <Card>
-              {activeTab === "snapshot" && (
-                <SectionView
-                  section={report.snapshot}
-                  onOpenCitation={setSelectedCitation}
-                />
-              )}
-              {activeTab === "business" && (
-                <SectionView
-                  section={report.business}
-                  onOpenCitation={setSelectedCitation}
-                />
-              )}
-              {activeTab === "financials" && (
-                <div className="space-y-6">
-                  <FinancialsTable table={report.financials.table} />
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-start">
+            <div className="min-w-0 flex-1">
+              <nav
+                aria-label="Report sections"
+                className="mb-8 flex flex-wrap gap-1 border-b border-rule"
+              >
+                {TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    onClick={() => setActiveTab(tab.id)}
+                    aria-current={activeTab === tab.id ? "page" : undefined}
+                    className={cn(
+                      "relative px-3 py-3 font-sans text-sm transition-colors duration-150",
+                      activeTab === tab.id
+                        ? "text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent"
+                        : "text-mute hover:text-ink"
+                    )}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </nav>
+
+              <div
+                key={activeTab}
+                className="animate-fade-up rounded-sm border border-rule/80 bg-surface/70 px-1 sm:px-2"
+              >
+                {activeTab === "snapshot" && (
                   <SectionView
-                    section={report.financials}
+                    section={report.snapshot}
                     onOpenCitation={setSelectedCitation}
                   />
-                </div>
-              )}
-              {activeTab === "risks" && (
-                <SectionView
-                  section={report.risks}
-                  onOpenCitation={setSelectedCitation}
-                />
-              )}
-            </Card>
-          </div>
+                )}
+                {activeTab === "business" && (
+                  <SectionView
+                    section={report.business}
+                    onOpenCitation={setSelectedCitation}
+                  />
+                )}
+                {activeTab === "financials" && (
+                  <div className="space-y-8 px-3 py-4 sm:px-4">
+                    <FinancialsTable table={report.financials.table} />
+                    <div className="border-t border-rule pt-2">
+                      <SectionView
+                        section={report.financials}
+                        onOpenCitation={setSelectedCitation}
+                      />
+                    </div>
+                  </div>
+                )}
+                {activeTab === "risks" && (
+                  <SectionView
+                    section={report.risks}
+                    onOpenCitation={setSelectedCitation}
+                  />
+                )}
+              </div>
+            </div>
 
-          {selectedCitation && (
-            <aside className="w-full shrink-0 lg:w-80">
-              <Card>
+            {selectedCitation && (
+              <aside className="w-full shrink-0 lg:sticky lg:top-8 lg:w-[22rem]">
                 <SourceViewer
                   chunkId={selectedCitation.chunkId}
                   quote={selectedCitation.quote}
@@ -142,10 +161,10 @@ export default function ReportPage({
                   citationId={selectedCitation.citationId}
                   onClose={() => setSelectedCitation(null)}
                 />
-              </Card>
-            </aside>
-          )}
-        </div>
+              </aside>
+            )}
+          </div>
+        </>
       )}
     </main>
   );

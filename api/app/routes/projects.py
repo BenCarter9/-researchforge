@@ -18,7 +18,7 @@ from app.llm.client import ClaudeClient
 from app.models import AnalysisRun, Document, DocumentChunk, ResearchProject
 from app.pipeline.runner import STAGES, PipelineDeps, run_pipeline
 from app.pipeline.stages import build_deps
-from app.sec.client import SecClient, TickerNotFound
+from app.sec.client import AmbiguousCompany, CompanyNotFound, SecClient, TickerNotFound
 
 router = APIRouter()
 
@@ -31,8 +31,8 @@ def _storage_dir() -> Path:
 
 
 class ProjectCreate(BaseModel):
-    company: str
-    ticker: str
+    company: str | None = None
+    ticker: str | None = None
     research_date: str | None = None
 
 
@@ -42,26 +42,56 @@ async def create_project(
     db: Session = Depends(get_db),
     sec: SecClient = Depends(get_sec_client),
 ) -> dict:
+    company = (payload.company or "").strip()
+    ticker = (payload.ticker or "").strip()
+    if not company and not ticker:
+        raise HTTPException(
+            status_code=422,
+            detail="Provide a company name, a ticker, or both.",
+        )
+
     try:
-        cik = await sec.resolve_cik(payload.ticker)
+        if ticker:
+            identity = await sec.resolve_by_ticker(ticker)
+        else:
+            identity = await sec.resolve_by_company(company)
     except TickerNotFound:
         raise HTTPException(
-            status_code=422, detail=f"Unknown ticker: {payload.ticker!r}"
+            status_code=422, detail=f"Unknown ticker: {ticker!r}"
         )
+    except CompanyNotFound:
+        raise HTTPException(
+            status_code=422, detail=f"Unknown company: {company!r}"
+        )
+    except AmbiguousCompany as exc:
+        hint = "; ".join(exc.matches)
+        raise HTTPException(
+            status_code=422,
+            detail=f"Ambiguous company {company!r}. Matches: {hint}",
+        )
+
+    # Prefer the caller's company label when they typed one; otherwise use SEC title.
+    # Prefer the caller's ticker casing normalized via SEC identity.
+    resolved_company = company or identity.title
+    resolved_ticker = identity.ticker
 
     project_id = new_id()
     project = ResearchProject(
         id=project_id,
-        company=payload.company,
-        ticker=payload.ticker,
-        cik=cik,
+        company=resolved_company,
+        ticker=resolved_ticker,
+        cik=identity.cik,
         research_date=payload.research_date,
         status="created",
     )
     db.add(project)
     db.commit()
 
-    return {"project_id": project_id}
+    return {
+        "project_id": project_id,
+        "company": resolved_company,
+        "ticker": resolved_ticker,
+    }
 
 
 @router.post("/api/projects/{project_id}/transcript")

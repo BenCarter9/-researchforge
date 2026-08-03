@@ -44,13 +44,40 @@ def _override_get_db():
 
 
 class _FakeSecClient:
-    _KNOWN = {"AAPL": "0000320193"}
+    _KNOWN = {
+        "AAPL": {
+            "cik": "0000320193",
+            "ticker": "AAPL",
+            "title": "Apple Inc.",
+        }
+    }
+    _BY_NAME = {"apple inc.": "AAPL", "apple": "AAPL"}
 
     async def resolve_cik(self, ticker: str) -> str:
-        cik = self._KNOWN.get(ticker.strip().upper())
-        if cik is None:
+        return (await self.resolve_by_ticker(ticker)).cik
+
+    async def resolve_by_ticker(self, ticker: str):
+        from app.sec.client import CompanyIdentity, TickerNotFound
+
+        row = self._KNOWN.get(ticker.strip().upper())
+        if row is None:
             raise TickerNotFound(ticker)
-        return cik
+        return CompanyIdentity(cik=row["cik"], ticker=row["ticker"], title=row["title"])
+
+    async def resolve_by_company(self, company: str):
+        from app.sec.client import CompanyIdentity, CompanyNotFound
+
+        key = company.strip().casefold()
+        ticker = self._BY_NAME.get(key)
+        if ticker is None:
+            # fuzzy contains
+            for name, t in self._BY_NAME.items():
+                if key in name or name in key:
+                    ticker = t
+                    break
+        if ticker is None:
+            raise CompanyNotFound(company)
+        return await self.resolve_by_ticker(ticker)
 
     async def latest_10k(self, cik: str) -> Filing:
         html = (
@@ -155,6 +182,8 @@ def test_create_project_returns_uuid_project_id():
     assert isinstance(project_id, str)
     assert len(project_id) >= 32
     assert project_id.count("-") == 4  # uuid4-ish
+    assert body["ticker"] == "AAPL"
+    assert body["company"] == "Acme"
 
 
 def test_create_project_unknown_ticker_returns_422():
@@ -162,6 +191,27 @@ def test_create_project_unknown_ticker_returns_422():
     assert resp.status_code == 422
     body = resp.json()
     assert "detail" in body
+
+
+def test_create_project_ticker_only_fills_company():
+    resp = client.post("/api/projects", json={"ticker": "AAPL"})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["ticker"] == "AAPL"
+    assert body["company"] == "Apple Inc."
+
+
+def test_create_project_company_only_fills_ticker():
+    resp = client.post("/api/projects", json={"company": "Apple Inc."})
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["ticker"] == "AAPL"
+    assert body["company"] == "Apple Inc."
+
+
+def test_create_project_requires_company_or_ticker():
+    resp = client.post("/api/projects", json={})
+    assert resp.status_code == 422
 
 
 def test_upload_transcript_json_returns_positive_chunk_count():

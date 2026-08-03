@@ -150,3 +150,35 @@ def test_same_fy_duplicates_keep_latest_end_value():
     facts = extract_facts(fixture)
     assert facts["revenue"]["FY2025"] == 410000000000
     assert len(facts["revenue"]) == 1
+
+
+def test_gross_profit_derived_from_revenue_minus_cogs_when_missing():
+    fixture = {
+        "cik": 1,
+        "entityName": "Costco-like",
+        "facts": {
+            "us-gaap": {
+                "RevenueFromContractWithCustomerExcludingAssessedTax": {
+                    "units": {
+                        "USD": [
+                            _entry("2025-08-31", 275235000000, 2025),
+                            _entry("2024-09-01", 254453000000, 2024),
+                        ]
+                    }
+                },
+                "CostOfGoodsAndServicesSold": {
+                    "units": {
+                        "USD": [
+                            _entry("2025-08-31", 239940000000, 2025),
+                            _entry("2024-09-01", 222358000000, 2024),
+                        ]
+                    }
+                },
+            },
+            "dei": {},
+        },
+    }
+    facts = extract_facts(fixture)
+    assert "gross_profit" in facts
+    assert facts["gross_profit"]["FY2025"] == 275235000000 - 239940000000
+    assert facts["gross_profit"]["FY2024"] == 254453000000 - 222358000000

@@ -45,6 +45,13 @@ export interface FinancialsSection extends Section {
 }
 
 export interface Report {
+  project: {
+    id: string;
+    company: string;
+    ticker: string;
+    research_date: string | null;
+    status: string;
+  };
   snapshot: Section;
   business: Section;
   financials: FinancialsSection;

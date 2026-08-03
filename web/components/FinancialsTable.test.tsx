@@ -11,7 +11,7 @@ describe("FinancialsTable", () => {
         metric: "Revenue",
         key: "revenue",
         values: { FY2024: 1234567, FY2025: 1500000 },
-        yoy: 18,
+        yoy: 0.18,
       },
     ];
 
@@ -29,7 +29,7 @@ describe("FinancialsTable", () => {
         metric: "Revenue",
         key: "revenue",
         values: { FY2024: 1234567, FY2025: 1500000 },
-        yoy: 18,
+        yoy: 0.18,
       },
       {
         metric: "Net income",

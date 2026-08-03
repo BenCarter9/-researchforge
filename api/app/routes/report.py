@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.deps import get_db
 from app.finance.engine import build_table
-from app.models import Claim, ClaimCitation, DocumentChunk, FinancialFact
+from app.models import Claim, ClaimCitation, DocumentChunk, FinancialFact, ResearchProject
 
 router = APIRouter()
 
@@ -47,6 +47,10 @@ def _section(db: Session, project_id: str, section: str) -> dict:
 
 @router.get("/api/projects/{project_id}/report")
 def get_report(project_id: str, db: Session = Depends(get_db)) -> dict:
+    project = db.get(ResearchProject, project_id)
+    if project is None:
+        raise HTTPException(status_code=404, detail="project not found")
+
     facts: dict[str, dict[str, float]] = {}
     fact_rows = db.scalars(
         select(FinancialFact).where(FinancialFact.project_id == project_id)
@@ -58,6 +62,13 @@ def get_report(project_id: str, db: Session = Depends(get_db)) -> dict:
     financials["table"] = build_table(facts)
 
     return {
+        "project": {
+            "id": project.id,
+            "company": project.company,
+            "ticker": project.ticker,
+            "research_date": project.research_date,
+            "status": project.status,
+        },
         "snapshot": _section(db, project_id, "snapshot"),
         "business": _section(db, project_id, "business"),
         "financials": financials,

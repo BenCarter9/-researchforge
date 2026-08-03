@@ -22,11 +22,16 @@ export function CreateProjectForm() {
     const trimmedCompany = company.trim();
     const trimmedTicker = ticker.trim();
 
+    if (!trimmedCompany && !trimmedTicker) {
+      setError("Enter a company name, a ticker, or both.");
+      return;
+    }
+
     setIsPending(true);
     try {
       const { project_id } = await createProject({
-        company: trimmedCompany,
-        ticker: trimmedTicker,
+        company: trimmedCompany || undefined,
+        ticker: trimmedTicker || undefined,
         research_date: researchDate.trim() || undefined,
       });
       router.push(`/projects/${project_id}/sources`);
@@ -38,9 +43,15 @@ export function CreateProjectForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+      <p className="text-sm text-mute">
+        Provide a company name, a ticker, or both — we resolve the rest from SEC
+        EDGAR.
+      </p>
+
       <div>
-        <label htmlFor="company" className="mb-1 block text-sm font-medium text-slate-700">
-          Company
+        <label htmlFor="company" className="mb-1 block text-sm font-medium text-ink">
+          Company{" "}
+          <span className="font-normal text-mute">(optional if ticker is set)</span>
         </label>
         <Input
           id="company"
@@ -48,14 +59,14 @@ export function CreateProjectForm() {
           type="text"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
-          placeholder="Apple Inc."
-          required
+          placeholder="Costco Wholesale"
         />
       </div>
 
       <div>
-        <label htmlFor="ticker" className="mb-1 block text-sm font-medium text-slate-700">
-          Ticker
+        <label htmlFor="ticker" className="mb-1 block text-sm font-medium text-ink">
+          Ticker{" "}
+          <span className="font-normal text-mute">(optional if company is set)</span>
         </label>
         <Input
           id="ticker"
@@ -63,14 +74,16 @@ export function CreateProjectForm() {
           type="text"
           value={ticker}
           onChange={(e) => setTicker(e.target.value)}
-          placeholder="AAPL"
-          required
+          placeholder="COST"
         />
       </div>
 
       <div>
-        <label htmlFor="research-date" className="mb-1 block text-sm font-medium text-slate-700">
-          Research date <span className="font-normal text-slate-400">(optional)</span>
+        <label
+          htmlFor="research-date"
+          className="mb-1 block text-sm font-medium text-ink"
+        >
+          Research date <span className="font-normal text-mute">(optional)</span>
         </label>
         <Input
           id="research-date"
@@ -82,7 +95,7 @@ export function CreateProjectForm() {
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-[var(--bad)]">
           {error}
         </p>
       )}

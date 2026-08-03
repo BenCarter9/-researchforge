@@ -140,7 +140,10 @@ def test_report_has_four_sections_with_ordered_claims_and_citations():
     assert resp.status_code == 200
     body = resp.json()
 
-    assert set(body.keys()) == {"snapshot", "business", "financials", "risks"}
+    assert set(body.keys()) == {"project", "snapshot", "business", "financials", "risks"}
+    assert body["project"]["id"] == "p1"
+    assert body["project"]["company"] == "Acme"
+    assert body["project"]["ticker"] == "ACME"
 
     business_claims = body["business"]["claims"]
     assert len(business_claims) == 1
@@ -165,6 +168,11 @@ def test_report_has_four_sections_with_ordered_claims_and_citations():
 
     # snapshot section has no seeded claims - still present, empty.
     assert body["snapshot"]["claims"] == []
+
+
+def test_report_unknown_project_returns_404():
+    resp = client.get("/api/projects/does-not-exist/report")
+    assert resp.status_code == 404
 
 
 def test_report_claims_ordered_by_ordinal():

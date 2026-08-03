@@ -18,7 +18,7 @@ function StatusIcon({ status }: { status: StageStatus["status"] }) {
     return (
       <span
         aria-hidden="true"
-        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--good)]/15 text-[0.65rem] text-[var(--good)]"
       >
         ✓
       </span>
@@ -28,7 +28,7 @@ function StatusIcon({ status }: { status: StageStatus["status"] }) {
     return (
       <span
         aria-hidden="true"
-        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700"
+        className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-sm bg-[var(--bad)]/15 text-[0.65rem] text-[var(--bad)]"
       >
         ✕
       </span>
@@ -38,54 +38,43 @@ function StatusIcon({ status }: { status: StageStatus["status"] }) {
     return (
       <span
         aria-hidden="true"
-        className="h-5 w-5 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-slate-600"
+        className="mt-0.5 h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-rule border-t-accent"
       />
     );
   }
   return (
     <span
       aria-hidden="true"
-      className="h-5 w-5 shrink-0 rounded-full border-2 border-slate-200"
+      className="mt-0.5 h-4 w-4 shrink-0 rounded-full border border-rule"
     />
   );
 }
 
 export function StageList({ stages }: StageListProps) {
   if (stages.length === 0) {
-    return <p className="text-sm text-slate-500">Waiting to start…</p>;
+    return <p className="text-sm text-mute">Waiting to start…</p>;
   }
 
   return (
-    <ul className="space-y-3">
+    <ul className="space-y-2">
       {stages.map((stage) => (
         <li
           key={stage.stage}
           className={cn(
-            "flex items-start gap-3 rounded-md border px-4 py-3",
-            stage.status === "error"
-              ? "border-red-200 bg-red-50"
-              : stage.status === "done"
-                ? "border-emerald-200 bg-emerald-50"
-                : stage.status === "running"
-                  ? "border-slate-300 bg-slate-50"
-                  : "border-slate-200 bg-white"
+            "flex items-start gap-3 border-b border-rule/70 px-1 py-3 last:border-b-0",
+            stage.status === "pending" && "opacity-55"
           )}
         >
           <StatusIcon status={stage.status} />
           <div className="min-w-0 flex-1">
-            <p
-              className={cn(
-                "text-sm font-medium",
-                stage.status === "pending" ? "text-slate-400" : "text-slate-900"
-              )}
-            >
+            <p className="text-sm font-medium text-ink">
               {humanizeStageName(stage.stage)}
-              <span className="ml-2 text-xs font-normal text-slate-400">
+              <span className="ml-2 text-xs font-normal text-mute">
                 {statusLabel[stage.status]}
               </span>
             </p>
             {stage.status === "error" && stage.error && (
-              <p role="alert" className="mt-1 text-sm text-red-700">
+              <p role="alert" className="mt-1 text-sm text-[var(--bad)]">
                 {stage.error}
               </p>
             )}

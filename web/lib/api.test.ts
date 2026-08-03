@@ -3,6 +3,13 @@ import { getReport } from "./api";
 import type { Report } from "./types";
 
 const mockReport: Report = {
+  project: {
+    id: "p1",
+    company: "Acme Corp",
+    ticker: "ACME",
+    research_date: null,
+    status: "ready",
+  },
   snapshot: {
     claims: [
       {

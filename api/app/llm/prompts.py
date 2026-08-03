@@ -50,18 +50,29 @@ Before finalizing, identify the strongest evidence against your conclusion.
 OBJECTIVES: dict[str, str] = {
     "snapshot": (
         "Produce a concise company snapshot grounded in the supplied Item 1 "
-        "business description: company, industry, business description, and "
-        "the primary research question. Do not cite or reference XBRL data or "
-        "financial figures — those are surfaced separately in the Financials "
-        "table. State only what the evidence supports; do not editorialize "
-        "about valuation or outlook."
+        "business description, CEO prepared remarks, and the supplied "
+        "financial summary table: company, industry, business description, "
+        "key scale figures from the table when present, and the primary "
+        "research question. You may cite figures that appear verbatim in the "
+        "financial_table chunk; do not invent, recompute, or round numbers "
+        "that are not in the supplied chunks. State only what the evidence "
+        "supports; do not editorialize about valuation or outlook."
     ),
     "business": (
-        "Describe the business using the supplied Item 1 chunks: products and "
-        "services, customers, geography, segments, cost structure, suppliers, "
-        "regulation, cyclicality, and capital intensity. Cite each fact to its "
-        "chunk; if a topic is not addressed in the evidence, state that it is "
-        "unknown rather than inferring it."
+        "Describe the business using the supplied Item 1 chunks and earnings "
+        "call prepared remarks (CEO and CFO): products and services, "
+        "customers, geography, segments, cost structure, suppliers, "
+        "regulation, cyclicality, and capital intensity. Cite each fact to "
+        "its chunk; if a topic is not addressed in the evidence, state that "
+        "it is unknown rather than inferring it."
+    ),
+    "financials": (
+        "Produce a short financials narrative grounded in Item 7 MD&A, CFO "
+        "prepared remarks, and the supplied financial summary table. Describe "
+        "revenue, profitability, cash flow, and balance-sheet trends that the "
+        "chunks support. Cite table figures only when they appear verbatim in "
+        "the financial_table chunk; do not invent or recompute arithmetic. "
+        "If a metric is unavailable in the table, say so rather than guessing."
     ),
     "risks": (
         "Extract the company's risk factors from the supplied Item 1A risk "

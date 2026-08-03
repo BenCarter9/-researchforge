@@ -33,3 +33,12 @@ def test_status_unknown_entailment_defaults_to_conservative_yellow():
     # Regression guard: a malformed/unrecognized entailment value must never
     # render as the most-trusting "green" status.
     assert evidence_status("reported_fact", True, "bogus_value") == "yellow"
+
+
+def test_status_provisional_claim_type_when_entailment_absent():
+    # Layer-2 deferred: claim_type supplies traffic-light semantics.
+    assert evidence_status("reported_fact", True, None) == "green"
+    assert evidence_status("management_claim", True, None) == "yellow"
+    assert evidence_status("analyst_inference", True, None) == "yellow"
+    assert evidence_status("unsupported", True, None) == "red"
+    assert evidence_status("unsupported", False, None) == "red"

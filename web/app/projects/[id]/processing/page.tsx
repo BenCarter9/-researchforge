@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -68,13 +69,22 @@ export default function ProcessingPage({
   }, [projectId, router]);
 
   return (
-    <main className="mx-auto max-w-lg px-4 py-12">
-      <h1 className="mb-6 text-2xl font-semibold text-slate-900">
+    <main className="mx-auto max-w-lg px-4 py-12 sm:py-16">
+      <Link
+        href="/"
+        className="font-display text-lg tracking-tight text-ink transition-colors hover:text-accent"
+      >
+        ResearchForge
+      </Link>
+      <h1 className="mt-8 font-display text-3xl tracking-tight text-ink">
         Generating report…
       </h1>
-      <Card>
+      <p className="mt-2 font-serif text-mute">
+        Fetching filings, extracting financials, and drafting cited sections.
+      </p>
+      <Card className="mt-8">
         {pollError && (
-          <p role="alert" className="mb-4 text-sm text-red-600">
+          <p role="alert" className="mb-4 text-sm text-[var(--bad)]">
             {pollError}
           </p>
         )}

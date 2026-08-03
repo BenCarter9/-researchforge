@@ -23,13 +23,17 @@ describe("CreateProjectForm", () => {
   });
 
   it("submits trimmed company/ticker and routes to the sources page on success", async () => {
-    vi.mocked(createProject).mockResolvedValue({ project_id: "proj-123" });
+    vi.mocked(createProject).mockResolvedValue({
+      project_id: "proj-123",
+      company: "Acme Corp",
+      ticker: "ACME",
+    });
     const user = userEvent.setup();
 
     render(<CreateProjectForm />);
 
-    await user.type(screen.getByLabelText(/company/i), "  Acme Corp  ");
-    await user.type(screen.getByLabelText(/ticker/i), "  acme  ");
+    await user.type(screen.getByLabelText(/^company/i), "  Acme Corp  ");
+    await user.type(screen.getByLabelText(/^ticker/i), "  acme  ");
     await user.click(screen.getByRole("button", { name: /create project/i }));
 
     await waitFor(() => {
@@ -45,6 +49,36 @@ describe("CreateProjectForm", () => {
     });
   });
 
+  it("allows company-only submit (ticker optional)", async () => {
+    vi.mocked(createProject).mockResolvedValue({
+      project_id: "proj-456",
+      company: "Apple Inc.",
+      ticker: "AAPL",
+    });
+    const user = userEvent.setup();
+
+    render(<CreateProjectForm />);
+
+    await user.type(screen.getByLabelText(/^company/i), "Apple Inc.");
+    await user.click(screen.getByRole("button", { name: /create project/i }));
+
+    await waitFor(() => {
+      expect(createProject).toHaveBeenCalledWith(
+        expect.objectContaining({ company: "Apple Inc.", ticker: undefined })
+      );
+    });
+  });
+
+  it("shows an inline error when neither company nor ticker is provided", async () => {
+    const user = userEvent.setup();
+    render(<CreateProjectForm />);
+    await user.click(screen.getByRole("button", { name: /create project/i }));
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent(/company name, a ticker, or both/i);
+    expect(createProject).not.toHaveBeenCalled();
+  });
+
   it("shows an inline error and does not navigate when createProject rejects (e.g. 422)", async () => {
     vi.mocked(createProject).mockRejectedValue(
       new Error("Unknown ticker: 'ZZZZ'")
@@ -53,8 +87,8 @@ describe("CreateProjectForm", () => {
 
     render(<CreateProjectForm />);
 
-    await user.type(screen.getByLabelText(/company/i), "Acme Corp");
-    await user.type(screen.getByLabelText(/ticker/i), "ZZZZ");
+    await user.type(screen.getByLabelText(/^company/i), "Acme Corp");
+    await user.type(screen.getByLabelText(/^ticker/i), "ZZZZ");
     await user.click(screen.getByRole("button", { name: /create project/i }));
 
     const alert = await screen.findByRole("alert");

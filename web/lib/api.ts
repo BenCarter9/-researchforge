@@ -13,10 +13,10 @@ async function json<T>(res: Response): Promise<T> {
 }
 
 export async function createProject(input: {
-  company: string;
-  ticker: string;
+  company?: string;
+  ticker?: string;
   research_date?: string;
-}): Promise<{ project_id: string }> {
+}): Promise<{ project_id: string; company: string; ticker: string }> {
   const res = await fetch("/api/projects", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

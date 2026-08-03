@@ -86,7 +86,8 @@ def test_persist_section_creates_claims_and_citations():
 
     claim_a, claim_b, claim_c = db_claims
 
-    assert claim_a.evidence_status == "green"
+    # Verified management_claim is yellow without Layer-2 entailment.
+    assert claim_a.evidence_status == "yellow"
     assert claim_a.ordinal == 0
     assert len(claim_a.citations) == 1
     assert claim_a.citations[0].verbatim_verified is True

@@ -136,7 +136,33 @@ def test_build_table_row_order_and_columns():
         "Cash",
         "Total debt",
         "Shares outstanding",
+        "Gross margin",
+        "Operating margin",
+        "Net margin",
+        "Net debt",
+        "Revenue CAGR",
     ]
+
+
+def test_build_table_derived_margins_and_cagr():
+    facts = {
+        "revenue": {"FY2023": 1000.0, "FY2024": 1100.0, "FY2025": 1210.0},
+        "gross_profit": {"FY2025": 605.0},
+        "operating_income": {"FY2025": 242.0},
+        "net_income": {"FY2025": 121.0},
+        "total_debt": {"FY2025": 400.0},
+        "cash": {"FY2025": 150.0},
+    }
+    table = build_table(facts)
+    by_key = {row["key"]: row for row in table}
+
+    assert by_key["gross_margin"]["values"]["FY2025"] == 0.5
+    assert by_key["operating_margin"]["values"]["FY2025"] == 0.2
+    assert by_key["net_margin"]["values"]["FY2025"] == 0.1
+    assert by_key["net_debt"]["values"]["FY2025"] == 250.0
+    assert by_key["revenue_cagr"]["values"]["FY2025"] == 0.1
+    assert by_key["revenue_cagr"]["values"]["FY2023"] == "unavailable"
+    assert by_key["revenue_cagr"]["yoy"] == "unavailable"
 
 
 def test_build_table_yoy_ties_to_newest_two_columns_not_rows_own_latest_data():

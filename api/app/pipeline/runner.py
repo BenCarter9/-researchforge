@@ -15,6 +15,7 @@ STAGES = [
     "financials",
     "generate_snapshot",
     "generate_business",
+    "generate_financials",
     "generate_risks",
     "validate",
 ]
@@ -39,6 +40,7 @@ class PipelineDeps:
     financials: StageFn
     generate_snapshot: StageFn
     generate_business: StageFn
+    generate_financials: StageFn
     generate_risks: StageFn
     validate: StageFn
 
