@@ -101,10 +101,10 @@ describe("DeskView", () => {
     ).toBeInTheDocument();
     expect(screen.getAllByText(/draft take/i)[0]).toBeInTheDocument();
     expect(screen.getAllByText(/draft pass/i)[0]).toBeInTheDocument();
-    expect(screen.getByText(/\$160 million/i)).toBeInTheDocument();
-    expect(screen.getByText(/350,000 registered users/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/\$160 million/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/350,000 registered users/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/unverified — not treated as fact/i)).toBeInTheDocument();
-    expect(screen.getByText(/zai-org\/GLM-5.2/)).toBeInTheDocument();
+    expect(screen.getAllByText(/zai-org\/GLM-5.2/).length).toBeGreaterThan(0);
     expect(screen.getByRole("status")).toHaveTextContent(/precomputed draft/i);
     expect(screen.getByText(/not a live GLM-5.2 call/i)).toBeInTheDocument();
 

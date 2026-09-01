@@ -106,14 +106,14 @@ For the 60-second workflow-tools demo, open **http://localhost:3000/desk**
 
 ## Running the tests
 
-Backend (pytest, 84 tests, all against fakes — no network or API key
+Backend (pytest, 100 tests, all against fakes — no network or API key
 needed):
 
 ```bash
 cd api && .venv/bin/python -m pytest -q
 ```
 
-Frontend (vitest, 29 tests):
+Frontend (vitest, 37 tests):
 
 ```bash
 npm --prefix web test
