@@ -36,11 +36,6 @@ export default function HomePage() {
             Start a project
           </Link>
         </div>
-        <p className="mt-6 max-w-lg font-sans text-xs leading-relaxed text-mute">
-          Walkthrough: start the API with{" "}
-          <code className="text-ink">RESEARCHFORGE_DEV_SEED=1</code> so the
-          GOOGL report exists, then click a claim, then open the desk.
-        </p>
       </div>
     </main>
   );
