@@ -20,6 +20,6 @@ test("desk page shows sourced TAKE/PASS calls, GLM-5.2 model id, and precomputed
   await page.getByRole("button", { name: /confirm take/i }).click();
   await expect(page.getByText(/confirmed by you/i)).toBeVisible();
 
-  await page.getByText(/exact prompt and model id/i).click();
+  await page.getByText("Exact prompt and model id", { exact: true }).click();
   await expect(page.getByText("zai-org/GLM-5.2").nth(1)).toBeVisible();
 });
