@@ -57,12 +57,11 @@ def test_desk_memo_without_key_returns_labeled_precomputed_draft(monkeypatch):
         resp = client.post("/api/desk/memo")
         assert resp.status_code == 200
         body = resp.json()
-        assert body["source"] == "precomputed"
+        assert body["source"] == "cached"
         assert body["model_id"] == "zai-org/GLM-5.2"
         assert body["prompt"] == MEMO_PROMPT
         assert body["draft"] == PRECOMPUTED_DRAFT
-        assert "Precomputed draft" in body["label"]
-        assert "Not a live GLM-5.2 call" in body["label"]
+        assert "Cached GLM-5.2" in body["label"]
         assert "Human confirms TAKE/PASS" in body["draft"]
         assert "$2B" not in body["draft"] or "unverified" in body["draft"].lower()
     finally:

@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-"""Dev-only route used exclusively by the Playwright e2e smoke test
-(web/e2e/report_flow.spec.ts). Seeds a fixed, deterministic project so the
-e2e can drive the demo path without running the real Claude pipeline.
+"""Dev-only demo seed used by Playwright and the live walkthrough.
 
-This module is only wired into the app (see app/main.py) when
-RESEARCHFORGE_DEV_SEED=1 is set in the environment - it must never be
-reachable in a normal deployment.
+Gated by RESEARCHFORGE_DEV_SEED=1 (see app/main.py). Never invents
+financials: table figures and verbatim quotes come from Alphabet's
+FY2024 Form 10-K (filed 2025-02-05, EDGAR accession 0001652044-25-000014).
 """
 
 from fastapi import APIRouter, Depends
@@ -26,20 +24,69 @@ from app.models import (
 
 router = APIRouter()
 
-# Fixed, deterministic ids so re-running the seed against a fresh (or
-# stale) e2e database is idempotent and the Playwright spec can hardcode
-# them.
 PROJECT_ID = "e2e-project"
-_DOCUMENT_ID = "e2e-doc-1"
-_CHUNK_ID = "c1"
-_CLAIM_ID = "e2e-claim-1"
-_CITATION_ID = "e2e-cit-1"
+TICKER = "GOOGL"
+COMPANY = "Alphabet Inc."
 
-_CHUNK_TEXT = (
-    "North American revenue increased 18% in FY2025, driven by new store "
-    "openings."
+_DOC_10K = "e2e-doc-10k"
+
+# Public 10-K passages (FY2024, year ended 2024-12-31). Quotes used as
+# citations are exact substrings of these chunks.
+_ITEM_1 = (
+    "Google Services' core products and platforms include ads, Android, "
+    "Chrome, devices, Gmail, Google Drive, Google Maps, Google Photos, "
+    "Google Play, Search, and YouTube, with broad and growing adoption by "
+    "users around the world. Google Services generates revenues primarily "
+    "by delivering both performance and brand advertising that appears on "
+    "Google Search & other properties, YouTube, and Google Network "
+    "partners' properties (\"Google Network properties\"). We continue to "
+    "invest in both performance and brand advertising and seek to improve "
+    "the measurability of advertising so advertisers understand the "
+    "effectiveness of their campaigns."
 )
-_VERBATIM_QUOTE = "North American revenue increased 18% in FY2025"
+_ITEM_1A = (
+    "We face intense competition. If we do not continue to innovate and "
+    "provide products and services that are useful to users, customers, "
+    "and other partners, we may not remain competitive, which could harm "
+    "our business, financial condition, and operating results. "
+    "International revenues accounted for approximately 51% of our "
+    "consolidated revenues in 2024."
+)
+_ITEM_7 = (
+    "The following table summarizes our consolidated financial results "
+    "(in millions, except for per share information and percentages): "
+    "Consolidated revenues $307,394 $350,018. Revenues were $350.0 billion, "
+    "an increase of 14% year over year, primarily driven by an increase in "
+    "Google Services revenues of $32.4 billion, or 12%, and an increase in "
+    "Google Cloud revenues of $10.1 billion, or 31%."
+)
+
+_Q_BUSINESS = (
+    "Google Services generates revenues primarily by delivering both "
+    "performance and brand advertising that appears on Google Search & "
+    "other properties, YouTube, and Google Network partners' properties"
+)
+_Q_SNAPSHOT = (
+    "Google Services' core products and platforms include ads, Android, "
+    "Chrome, devices, Gmail, Google Drive, Google Maps, Google Photos, "
+    "Google Play, Search, and YouTube"
+)
+_Q_RISK = (
+    "We face intense competition. If we do not continue to innovate and "
+    "provide products and services that are useful to users, customers, "
+    "and other partners, we may not remain competitive"
+)
+_Q_FINANCIALS = (
+    "Revenues were $350.0 billion, an increase of 14% year over year"
+)
+
+# 10-K consolidated results, in millions of USD (same units as the filing).
+_REVENUE_FY2023 = 307_394.0
+_REVENUE_FY2024 = 350_018.0
+_OI_FY2023 = 84_293.0
+_OI_FY2024 = 112_390.0
+_NI_FY2023 = 73_795.0
+_NI_FY2024 = 100_118.0
 
 
 def _reset(db: Session) -> None:
@@ -73,74 +120,232 @@ def _reset(db: Session) -> None:
     db.commit()
 
 
-@router.post("/api/dev/seed")
-def seed(db: Session = Depends(get_db)) -> dict:
-    # The e2e runs against a throwaway sqlite file with no migrations
-    # applied, so make sure the schema exists before writing to it.
-    Base.metadata.create_all(engine)
-
+def seed_demo_project(db: Session) -> dict:
+    """Idempotent GOOGL demo project. Caller must create tables first."""
     _reset(db)
 
     project = ResearchProject(
-        id=PROJECT_ID, company="Demo Corp", ticker="DEMO", status="created"
+        id=PROJECT_ID,
+        company=COMPANY,
+        ticker=TICKER,
+        cik="0001652044",
+        research_date="2026-09-01",
+        status="ready",
     )
     document = Document(
-        id=_DOCUMENT_ID,
+        id=_DOC_10K,
         project_id=PROJECT_ID,
         type="10-K",
         source="edgar",
+        source_url=(
+            "https://www.sec.gov/Archives/edgar/data/1652044/"
+            "000165204425000014/goog-20241231.htm"
+        ),
+        filing_date="2025-02-05",
+        fiscal_period="FY2024",
     )
-    chunk = DocumentChunk(
-        id=_CHUNK_ID,
-        document_id=_DOCUMENT_ID,
+    chunk_item1 = DocumentChunk(
+        id="c-item1",
+        document_id=_DOC_10K,
+        section_label="item_1",
+        text=_ITEM_1,
+    )
+    chunk_item1a = DocumentChunk(
+        id="c-item1a",
+        document_id=_DOC_10K,
+        section_label="item_1a",
+        text=_ITEM_1A,
+    )
+    chunk_item7 = DocumentChunk(
+        id="c-item7",
+        document_id=_DOC_10K,
         section_label="item_7",
-        text=_CHUNK_TEXT,
+        text=_ITEM_7,
     )
-    claim = Claim(
-        id=_CLAIM_ID,
+
+    snapshot = Claim(
+        id="e2e-claim-snapshot",
         project_id=PROJECT_ID,
-        section="business",
-        claim_text="North American revenue increased 18% in FY2025.",
+        section="snapshot",
+        claim_text=(
+            "Alphabet's Google Services products include Search, YouTube, "
+            "Android, Chrome, and Maps."
+        ),
         claim_type="reported_fact",
         evidence_status="green",
         ordinal=0,
     )
-    citation = ClaimCitation(
-        id=_CITATION_ID,
-        claim_id=_CLAIM_ID,
-        chunk_id=_CHUNK_ID,
-        verbatim_quote=_VERBATIM_QUOTE,
+    snapshot_cite = ClaimCitation(
+        id="e2e-cit-snapshot",
+        claim_id="e2e-claim-snapshot",
+        chunk_id="c-item1",
+        verbatim_quote=_Q_SNAPSHOT,
         verbatim_verified=True,
     )
-    # "revenue" has both years so the Financials table renders real
-    # numbers; "gross_profit" is intentionally never seeded so its row
-    # renders "unavailable" cells for the e2e to assert on.
-    revenue_fy2024 = FinancialFact(
-        id="e2e-ff-revenue-fy2024",
+    business = Claim(
+        id="e2e-claim-1",
         project_id=PROJECT_ID,
-        concept="revenue",
-        period="FY2024",
-        value=900.0,
+        section="business",
+        claim_text=(
+            "Google Services generates revenue primarily from performance "
+            "and brand advertising on Search, YouTube, and Network properties."
+        ),
+        claim_type="reported_fact",
+        evidence_status="green",
+        ordinal=0,
     )
-    revenue_fy2025 = FinancialFact(
-        id="e2e-ff-revenue-fy2025",
+    business_cite = ClaimCitation(
+        id="e2e-cit-1",
+        claim_id="e2e-claim-1",
+        chunk_id="c-item1",
+        verbatim_quote=_Q_BUSINESS,
+        verbatim_verified=True,
+    )
+    risks = Claim(
+        id="e2e-claim-risk",
         project_id=PROJECT_ID,
-        concept="revenue",
-        period="FY2025",
-        value=1200.0,
+        section="risks",
+        claim_text=(
+            "Management flags intense competition and the need to keep "
+            "innovating as a principal risk."
+        ),
+        claim_type="management_claim",
+        evidence_status="green",
+        ordinal=0,
     )
+    risks_cite = ClaimCitation(
+        id="e2e-cit-risk",
+        claim_id="e2e-claim-risk",
+        chunk_id="c-item1a",
+        verbatim_quote=_Q_RISK,
+        verbatim_verified=True,
+    )
+    financials = Claim(
+        id="e2e-claim-fin",
+        project_id=PROJECT_ID,
+        section="financials",
+        claim_text=(
+            "Alphabet reported FY2024 revenues of $350.0 billion, up 14% "
+            "year over year (10-K, in millions in the consolidated table)."
+        ),
+        claim_type="reported_fact",
+        evidence_status="green",
+        ordinal=0,
+    )
+    financials_cite = ClaimCitation(
+        id="e2e-cit-fin",
+        claim_id="e2e-claim-fin",
+        chunk_id="c-item7",
+        verbatim_quote=_Q_FINANCIALS,
+        verbatim_verified=True,
+    )
+
+    facts = [
+        FinancialFact(
+            id="e2e-ff-revenue-fy2023",
+            project_id=PROJECT_ID,
+            concept="revenue",
+            period="FY2023",
+            value=_REVENUE_FY2023,
+            unit="USD millions",
+            xbrl_tag="Revenues",
+            source_document_id=_DOC_10K,
+        ),
+        FinancialFact(
+            id="e2e-ff-revenue-fy2024",
+            project_id=PROJECT_ID,
+            concept="revenue",
+            period="FY2024",
+            value=_REVENUE_FY2024,
+            unit="USD millions",
+            xbrl_tag="Revenues",
+            source_document_id=_DOC_10K,
+        ),
+        FinancialFact(
+            id="e2e-ff-oi-fy2023",
+            project_id=PROJECT_ID,
+            concept="operating_income",
+            period="FY2023",
+            value=_OI_FY2023,
+            unit="USD millions",
+            xbrl_tag="OperatingIncomeLoss",
+            source_document_id=_DOC_10K,
+        ),
+        FinancialFact(
+            id="e2e-ff-oi-fy2024",
+            project_id=PROJECT_ID,
+            concept="operating_income",
+            period="FY2024",
+            value=_OI_FY2024,
+            unit="USD millions",
+            xbrl_tag="OperatingIncomeLoss",
+            source_document_id=_DOC_10K,
+        ),
+        FinancialFact(
+            id="e2e-ff-ni-fy2023",
+            project_id=PROJECT_ID,
+            concept="net_income",
+            period="FY2023",
+            value=_NI_FY2023,
+            unit="USD millions",
+            xbrl_tag="NetIncomeLoss",
+            source_document_id=_DOC_10K,
+        ),
+        FinancialFact(
+            id="e2e-ff-ni-fy2024",
+            project_id=PROJECT_ID,
+            concept="net_income",
+            period="FY2024",
+            value=_NI_FY2024,
+            unit="USD millions",
+            xbrl_tag="NetIncomeLoss",
+            source_document_id=_DOC_10K,
+        ),
+        # gross_profit intentionally omitted so the table still has an
+        # "unavailable" row for the e2e / live demo.
+    ]
 
     db.add_all(
         [
             project,
             document,
-            chunk,
-            claim,
-            citation,
-            revenue_fy2024,
-            revenue_fy2025,
+            chunk_item1,
+            chunk_item1a,
+            chunk_item7,
+            snapshot,
+            snapshot_cite,
+            business,
+            business_cite,
+            risks,
+            risks_cite,
+            financials,
+            financials_cite,
+            *facts,
         ]
     )
     db.commit()
+    return {"project_id": PROJECT_ID, "ticker": TICKER, "company": COMPANY}
 
-    return {"project_id": PROJECT_ID}
+
+def ensure_schema_and_seed(db: Session) -> dict:
+    Base.metadata.create_all(engine)
+    return seed_demo_project(db)
+
+
+@router.post("/api/dev/seed")
+def seed(db: Session = Depends(get_db)) -> dict:
+    return ensure_schema_and_seed(db)
+
+
+@router.get("/api/dev/demo")
+def demo(db: Session = Depends(get_db)) -> dict:
+    project = db.get(ResearchProject, PROJECT_ID)
+    if project is None:
+        ensure_schema_and_seed(db)
+        project = db.get(ResearchProject, PROJECT_ID)
+    return {
+        "project_id": PROJECT_ID,
+        "ticker": project.ticker if project else TICKER,
+        "company": project.company if project else COMPANY,
+        "report_path": f"/projects/{PROJECT_ID}/report",
+    }

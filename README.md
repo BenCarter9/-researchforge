@@ -53,8 +53,8 @@ verifiably traceable to their sources rather than on breadth of analysis
 | `DATABASE_URL` | No | `postgresql+psycopg://forge:forge@localhost:5432/researchforge` | Matches the `docker-compose.yml` defaults. |
 | `SEC_USER_AGENT` | Yes, for any real SEC EDGAR fetch | `"ResearchForge you@example.com"` | SEC requires a descriptive User-Agent **with a contact email** on every request. Set this to your own contact info, not a placeholder — SEC will rate-limit or block generic/missing UAs. |
 | `ANTHROPIC_API_KEY` | Only for a real Claude analysis pass | — | All automated tests (pytest, vitest, Playwright) run against fakes and need no key. |
-| `GLM_API_KEY` / `OPENROUTER_API_KEY` / `ZAI_API_KEY` | Only for a live GLM-5.2 desk memo | — | Optional. First key found wins. No key → labeled precomputed draft on `/desk`. |
-| `RESEARCHFORGE_DEV_SEED` | No | unset | Set to `1` to register the dev-only `POST /api/dev/seed` route used by the Playwright e2e to seed a fixed demo project. **Must stay unset in normal or production use** — it is never wired in otherwise (see `api/app/main.py`). |
+| `GLM_API_KEY` / `OPENROUTER_API_KEY` / `ZAI_API_KEY` | Only for a live GLM-5.2 desk memo | — | Optional. First key found wins. No key → labeled **cached GLM-5.2 draft** on `/desk` (same prompt and model id). |
+| `RESEARCHFORGE_DEV_SEED` | No | unset | Set to `1` to auto-seed a GOOGL (Alphabet FY2024 10-K excerpts) report on API startup and register `POST /api/dev/seed`. Used by Playwright and the walkthrough. **Must stay unset in production.** |
 | `RESEARCHFORGE_API_BASE` | No | `http://localhost:8000` | Used by the [evaluation harness](#evaluation-harness) CLI to find a running API. |
 
 Copy `.env.example` to `.env` and fill in your own values as a starting
@@ -101,19 +101,28 @@ npm --prefix web run dev
 Open **http://localhost:3000/projects/new** and start a project with a
 ticker and a transcript file.
 
-For the 60-second workflow-tools demo, open **http://localhost:3000/desk**
-(no Postgres required for that page). See [Desk (GLM-5.2)](#desk-glm-52).
+For the 60-second workflow-tools **and** seeded-report demo, start the API
+with the seed flag (SQLite is enough; Postgres is not required):
+
+```bash
+cd api && RESEARCHFORGE_DEV_SEED=1 DATABASE_URL=sqlite:///./demo.db \
+  .venv/bin/python -m uvicorn app.main:app --reload --port 8000
+```
+
+Then open **http://localhost:3000**. Click **Open GOOGL report** (Alphabet
+FY2024 10-K excerpts, not invented financials) → click a claim to see the
+verbatim passage → **Open the desk**. See [Desk (GLM-5.2)](#desk-glm-52).
 
 ## Running the tests
 
-Backend (pytest, 100 tests, all against fakes — no network or API key
+Backend (pytest, 101 tests, all against fakes — no network or API key
 needed):
 
 ```bash
 cd api && .venv/bin/python -m pytest -q
 ```
 
-Frontend (vitest, 37 tests):
+Frontend (vitest, 41 tests):
 
 ```bash
 npm --prefix web test
@@ -169,11 +178,9 @@ does not replace the evidence-grounded 10-K / transcript skeleton above.
 - **Facts are cited.** Every dollar figure and named customer on the desk is
   copied from a linked company or wire source. Unverified items stay labeled
   (including any Rogo valuation rumor). The model does not invent financials.
-- **Human owns TAKE/PASS.** GLM-5.2 (or a clearly labeled precomputed fallback
-  when no `GLM_API_KEY` / `OPENROUTER_API_KEY` / `ZAI_API_KEY` is set) drafts
-  a memo; the analyst confirms or rejects the call. The exact prompt and
-  model id are shown on the page so a screen recording still proves the
-  model choice without a live key.
+- **Human owns TAKE/PASS.** GLM-5.2 drafts a memo (live if a key is set;
+  otherwise a **cached GLM-5.2 draft** with the same prompt and model id
+  `zai-org/GLM-5.2`). The analyst confirms or rejects the call.
 
 ## Disclaimer
 

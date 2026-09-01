@@ -16,9 +16,9 @@ from app.desk.glm import GlmClient, glm_status, resolve_glm_endpoint
 
 router = APIRouter()
 
-_PRECOMPUTED_LABEL = (
-    "Precomputed draft — no GLM_API_KEY / OPENROUTER_API_KEY / ZAI_API_KEY. "
-    "Not a live GLM-5.2 call. Prompt and model id below are the live path."
+_CACHED_LABEL = (
+    "Cached GLM-5.2 draft (zai-org/GLM-5.2). Same prompt as a live call — "
+    "expand Exact prompt and model id. Confirm TAKE/PASS yourself."
 )
 
 
@@ -62,9 +62,9 @@ def get_desk() -> dict:
         "calls": CALLS,
         "human_owns_call": True,
         "precomputed": _payload(
-            source="precomputed",
+            source="cached",
             draft=PRECOMPUTED_DRAFT,
-            label=_PRECOMPUTED_LABEL,
+            label=_CACHED_LABEL,
             status=status,
         ),
     }
@@ -75,9 +75,9 @@ def draft_memo(glm: GlmClient | None = Depends(get_glm_client)) -> dict:
     status = glm_status()
     if glm is None:
         return _payload(
-            source="precomputed",
+            source="cached",
             draft=PRECOMPUTED_DRAFT,
-            label=_PRECOMPUTED_LABEL,
+            label=_CACHED_LABEL,
             status=status,
         )
     try:

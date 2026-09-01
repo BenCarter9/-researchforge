@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const DEMO_REPORT = "/projects/e2e-project/report";
+
 export default function HomePage() {
   return (
     <main className="relative mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-16">
@@ -16,10 +18,10 @@ export default function HomePage() {
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <Link
-            href="/projects/new"
+            href={DEMO_REPORT}
             className="inline-flex items-center rounded-sm bg-ink px-5 py-3 font-sans text-sm font-medium text-surface transition-colors hover:bg-ink/90"
           >
-            Start a project
+            Open GOOGL report
           </Link>
           <Link
             href="/desk"
@@ -27,10 +29,18 @@ export default function HomePage() {
           >
             Open the desk
           </Link>
-          <span className="font-sans text-xs tracking-wide text-mute">
-            Snapshot · Business · Financials · Risks
-          </span>
+          <Link
+            href="/projects/new"
+            className="font-sans text-sm text-mute underline-offset-4 hover:text-ink hover:underline"
+          >
+            Start a project
+          </Link>
         </div>
+        <p className="mt-6 max-w-lg font-sans text-xs leading-relaxed text-mute">
+          Walkthrough: start the API with{" "}
+          <code className="text-ink">RESEARCHFORGE_DEV_SEED=1</code> so the
+          GOOGL report exists, then click a claim, then open the desk.
+        </p>
       </div>
     </main>
   );

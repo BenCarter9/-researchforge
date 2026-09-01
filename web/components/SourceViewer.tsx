@@ -10,6 +10,8 @@ export interface SourceViewerProps {
   quote: string;
   claimText: string;
   citationId: string;
+  passage?: string | null;
+  sectionLabel?: string | null;
   onClose?: () => void;
 }
 
@@ -62,9 +64,22 @@ export function SourceViewer({
   quote,
   claimText,
   citationId,
+  passage,
+  sectionLabel,
   onClose,
 }: SourceViewerProps) {
-  const [chunk, setChunk] = useState<Chunk | null>(null);
+  const [chunk, setChunk] = useState<Chunk | null>(
+    passage
+      ? {
+          document_id: "",
+          section_label: sectionLabel || "source",
+          page_start: null,
+          page_end: null,
+          speaker: null,
+          text: passage,
+        }
+      : null
+  );
   const [loadError, setLoadError] = useState<string | null>(null);
   const [markError, setMarkError] = useState<string | null>(null);
   const [marked, setMarked] = useState<MarkedState>(null);
@@ -72,7 +87,9 @@ export function SourceViewer({
 
   useEffect(() => {
     let cancelled = false;
-    setChunk(null);
+    if (!passage) {
+      setChunk(null);
+    }
     setLoadError(null);
     setMarked(null);
     setMarkError(null);
@@ -82,7 +99,7 @@ export function SourceViewer({
         if (!cancelled) setChunk(result);
       })
       .catch((err) => {
-        if (!cancelled) {
+        if (!cancelled && !passage) {
           setLoadError(err instanceof Error ? err.message : "Failed to load source.");
         }
       });
@@ -90,7 +107,7 @@ export function SourceViewer({
     return () => {
       cancelled = true;
     };
-  }, [chunkId, citationId]);
+  }, [chunkId, citationId, passage]);
 
   const quoteMatch = chunk && quote.length > 0 ? findQuoteMatch(chunk.text, quote) : null;
 

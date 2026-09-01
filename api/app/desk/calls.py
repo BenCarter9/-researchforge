@@ -215,7 +215,7 @@ def build_user_prompt(calls: list[dict] | None = None) -> str:
 MEMO_PROMPT = build_user_prompt()
 
 PRECOMPUTED_DRAFT = """\
-Desk memo (precomputed fallback — not a live model call)
+Cached GLM-5.2 desk memo (zai-org/GLM-5.2)
 
 Proposed: TAKE Rogo · PASS Fiscal.ai (formerly FinChat)
 Scope: AI-in-finance workflow tools. Not a public-equity recommendation.

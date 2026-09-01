@@ -55,6 +55,22 @@ describe("SourceViewer", () => {
     expect(screen.getByText("Revenue grew.")).toBeInTheDocument();
   });
 
+  it("renders a provided passage immediately without a loading flash", () => {
+    mockGetChunk.mockReturnValue(new Promise(() => {}));
+    render(
+      <SourceViewer
+        chunkId="c1"
+        quote="BETA"
+        claimText="Revenue grew."
+        citationId="cit-1"
+        passage="Alpha BETA gamma"
+        sectionLabel="item_1"
+      />
+    );
+    expect(screen.queryByText(/Loading source/i)).not.toBeInTheDocument();
+    expect(screen.getByText("BETA", { selector: "mark" })).toBeInTheDocument();
+  });
+
   it("shows a loading state before the chunk resolves", () => {
     mockGetChunk.mockReturnValue(new Promise(() => {}));
 

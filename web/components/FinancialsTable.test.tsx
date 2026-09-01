@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { FinancialsTable } from "./FinancialsTable";
 import type { FinancialRow } from "@/lib/types";
@@ -66,5 +67,34 @@ describe("FinancialsTable", () => {
 
     expect(screen.getByText("Gross margin")).toBeInTheDocument();
     expect(screen.getByText("unavailable")).toBeInTheDocument();
+  });
+
+  it("renders clickable YoY that exposes the engine formula", async () => {
+    const onOpen = vi.fn();
+    const user = userEvent.setup();
+    const table: FinancialRow[] = [
+      {
+        metric: "Revenue",
+        key: "revenue",
+        values: { FY2023: 307394, FY2024: 350018 },
+        yoy: 0.1387,
+        yoy_calc: {
+          metric: "growth",
+          formula: "(curr - prev) / prev",
+          inputs: { curr: 350018, prev: 307394 },
+          result: 0.1387,
+          unit: "ratio",
+          period: null,
+        },
+      },
+    ];
+    render(<FinancialsTable table={table} onOpenFormula={onOpen} />);
+    await user.click(screen.getByRole("button", { name: /\+13\.9%/ }));
+    expect(onOpen).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metric: "Revenue",
+        calc: expect.objectContaining({ formula: "(curr - prev) / prev" }),
+      })
+    );
   });
 });

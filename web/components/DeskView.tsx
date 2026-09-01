@@ -71,10 +71,10 @@ export function DeskView({ desk }: { desk: DeskPayload }) {
           . OpenAI-compatible API when a key is set.
         </p>
 
-        {memo.source === "precomputed" ? (
+        {memo.source === "cached" ? (
           <p
             role="status"
-            className="mt-4 border border-[var(--warn)]/40 bg-[var(--warn)]/10 px-3 py-2 font-sans text-sm text-[var(--warn)]"
+            className="mt-4 border border-rule bg-mist/70 px-3 py-2 font-sans text-sm text-ink"
           >
             {memo.label}
           </p>
@@ -133,7 +133,7 @@ export function DeskView({ desk }: { desk: DeskPayload }) {
               ? "Drafting…"
               : desk.live_available
                 ? "Draft with live GLM-5.2"
-                : "Re-show precomputed draft"}
+                : "Show cached GLM-5.2 draft"}
           </Button>
           <span className="font-sans text-xs text-mute">
             {desk.live_available

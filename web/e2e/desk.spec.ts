@@ -11,7 +11,8 @@ test("desk page shows sourced TAKE/PASS calls, GLM-5.2 model id, and precomputed
     page.getByRole("heading", { name: "Fiscal.ai (formerly FinChat)" })
   ).toBeVisible();
   await expect(page.getByText("zai-org/GLM-5.2").first()).toBeVisible();
-  await expect(page.getByText(/precomputed draft/i).first()).toBeVisible();
+  await expect(page.getByText(/cached GLM-5.2 draft/i).first()).toBeVisible();
+  await expect(page.getByText(/Loading desk/i)).toHaveCount(0);
   await expect(page.getByText(/\$160 million/i).first()).toBeVisible();
   await expect(page.getByText(/350,000 registered users/i).first()).toBeVisible();
   await expect(page.getByRole("link", { name: "Source" }).first()).toBeVisible();

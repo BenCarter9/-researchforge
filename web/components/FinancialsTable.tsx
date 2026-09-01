@@ -1,7 +1,8 @@
-import type { FinancialRow } from "@/lib/types";
+import type { FinancialRow, YoyCalc } from "@/lib/types";
 
 export interface FinancialsTableProps {
   table: FinancialRow[];
+  onOpenFormula?: (payload: { metric: string; calc: YoyCalc }) => void;
 }
 
 // Sorted, de-duplicated set of fiscal-year keys across every row (e.g.
@@ -51,20 +52,46 @@ function ValueCell({
   return <span>{ratio ? formatRatio(value) : formatNumber(value)}</span>;
 }
 
-function YoyCell({ value }: { value: number | "unavailable" }) {
+function YoyCell({
+  value,
+  calc,
+  metric,
+  onOpen,
+}: {
+  value: number | "unavailable";
+  calc?: YoyCalc | null;
+  metric: string;
+  onOpen?: (payload: { metric: string; calc: YoyCalc }) => void;
+}) {
   if (value === "unavailable") {
     return <span className="text-mute/70">unavailable</span>;
   }
   const colorClass =
     value > 0 ? "text-[var(--good)]" : value < 0 ? "text-[var(--bad)]" : "text-ink";
-  return <span className={colorClass}>{formatYoy(value)}</span>;
+  const label = formatYoy(value);
+  if (calc && onOpen) {
+    return (
+      <button
+        type="button"
+        onClick={() => onOpen({ metric, calc })}
+        className={`${colorClass} underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/40`}
+      >
+        {label}
+      </button>
+    );
+  }
+  return <span className={colorClass}>{label}</span>;
 }
 
-export function FinancialsTable({ table }: FinancialsTableProps) {
+export function FinancialsTable({ table, onOpenFormula }: FinancialsTableProps) {
   const years = yearKeys(table);
 
   return (
     <div className="overflow-x-auto">
+      <p className="mb-3 font-sans text-[0.7rem] uppercase tracking-[0.12em] text-mute">
+        Click a YoY figure to see the deterministic formula. Missing facts
+        render as unavailable — never 0.
+      </p>
       <table className="w-full min-w-max border-collapse font-sans text-sm">
         <thead>
           <tr className="border-b border-rule text-[0.7rem] font-medium uppercase tracking-[0.12em] text-mute">
@@ -99,7 +126,12 @@ export function FinancialsTable({ table }: FinancialsTableProps) {
                 </td>
               ))}
               <td className="py-2.5 pr-4 text-right font-sans tabular-nums">
-                <YoyCell value={row.yoy} />
+                <YoyCell
+                  value={row.yoy}
+                  calc={row.yoy_calc}
+                  metric={row.metric}
+                  onOpen={onOpenFormula}
+                />
               </td>
             </tr>
           ))}

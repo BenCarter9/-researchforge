@@ -122,11 +122,11 @@ describe("desk API helpers", () => {
   it("draftDeskMemo POSTs /api/desk/memo", async () => {
     (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       ok: true,
-      json: async () => ({ source: "precomputed", model_id: "zai-org/GLM-5.2" }),
+      json: async () => ({ source: "cached", model_id: "zai-org/GLM-5.2" }),
       text: async () => "",
     });
     const memo = await draftDeskMemo();
     expect(fetch).toHaveBeenCalledWith("/api/desk/memo", { method: "POST" });
-    expect(memo.source).toBe("precomputed");
+    expect(memo.source).toBe("cached");
   });
 });

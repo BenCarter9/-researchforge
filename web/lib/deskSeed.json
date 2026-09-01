@@ -1,0 +1,115 @@
+{
+  "model_id": "zai-org/GLM-5.2",
+  "model_license": "MIT",
+  "weights_url": "https://huggingface.co/zai-org/GLM-5.2",
+  "live_available": false,
+  "key_name": null,
+  "request_model": null,
+  "prompt": "Draft a memo that proposes TAKE on Rogo and PASS on Fiscal.ai (formerly FinChat) as AI-in-finance *workflow tools*, not as public equities. Ground every sentence in the sourced facts below. Do not add numbers that are not listed. End with: Human confirms TAKE/PASS.\n\nSOURCED CALLS\n\n## Rogo \u2014 proposed TAKE\nCompany-announced $160 million Series D (April 2026) for an agentic platform purpose-built for finance. Named investment-bank users include Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura. Draft TAKE is about workflow-tool fit, not a public security. A human must confirm.\n- [rogo-series-d] Rogo announced $160 million in Series D funding on April 29, 2026.\n  source: PR Newswire (Rogo company announcement) (2026-04-29) https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html\n  quote: 'Rogo, the AI platform purpose-built for finance, today announced it has raised $160 million in Series D funding led by Kleiner Perkins'\n- [rogo-felix] Rogo describes Felix as agentic AI that executes complex, multi-step financial processes autonomously.\n  source: PR Newswire (Rogo company announcement) (2026-04-29) https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html\n  quote: 'The company recently introduced Felix, its agentic AI that executes complex, multi-step financial processes autonomously'\n- [rogo-ibs] Named institutional users include Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura.\n  source: PR Newswire (Rogo company announcement) (2026-04-29) https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html\n  quote: 'More than 35,000 financial professionals at over 250 institutions, including Rothschild & Co, Jefferies, Lazard, Moelis, Nomura, and others, leverage Rogo in their daily workflows'\n- UNVERIFIED (do not treat as fact): Secondary coverage has circulated a ~$2B valuation. That figure is unverified here and is not treated as fact.\n\n## Fiscal.ai (formerly FinChat) \u2014 proposed PASS\nCompany-announced rebrand from FinChat with a $10 million Series A and more than 350,000 registered users. Origin is querying public financial data at scale via chat; the company now also sells a terminal and APIs. Draft PASS is about workflow-tool fit versus finance-native agents with named IB distribution. A human must confirm.\n- [fiscal-rebrand-series-a] FinChat rebranded to Fiscal.ai and announced a $10 million USD Series A.\n  source: Fiscal.ai (company blog) (2025-06) https://fiscal.ai/blog/series-a-announcement/\n  quote: 'We have officially rebranded to Fiscal.ai to build the future of financial data and AI. With this, we are excited to announce our $10M USD Series A funding led by Portage'\n- [fiscal-users] Fiscal.ai reported already over 350,000 registered users at the Series A announcement.\n  source: Fiscal.ai (company blog) (2025-06) https://fiscal.ai/blog/series-a-announcement/\n  quote: 'With already over 350,000 registered users and top fintech platforms worldwide leveraging Fiscal.ai\u2019s APIs to serve millions of end users'\n- [fiscal-chat-origin] Fiscal.ai launched as FinChat in 2023 to query financial data at scale; the company later described the chat interface as a feature rather than the core product.\n  source: Fiscal.ai (company blog) (2025-06) https://fiscal.ai/blog/series-a-announcement/\n  quote: 'When we launched FinChat in 2023, our mission was to empower everyone to query financial data at scale. As we\u2019ve grown, so have our ambitions \u2014 beyond the Chat interface.'",
+  "system_prompt": "You are drafting a short desk memo for an equity-research workflow-tools screen.\nUse ONLY the sourced facts in the user message. Do not invent funding, customers, revenue, valuation, or other financials. If a figure is labeled unverified, say so and do not treat it as fact. Do not issue a buy/sell recommendation as a settled call \u2014 propose TAKE/PASS and state that a human must confirm. Cite sources by publisher and date. Keep the memo under 250 words.\n",
+  "calls": [
+    {
+      "id": "rogo",
+      "company": "Rogo",
+      "proposed": "TAKE",
+      "headline": "Finance-native agents with named IB distribution",
+      "summary": "Company-announced $160 million Series D (April 2026) for an agentic platform purpose-built for finance. Named investment-bank users include Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura. Draft TAKE is about workflow-tool fit, not a public security. A human must confirm.",
+      "facts": [
+        {
+          "id": "rogo-series-d",
+          "text": "Rogo announced $160 million in Series D funding on April 29, 2026.",
+          "kind": "reported_fact",
+          "source": {
+            "publisher": "PR Newswire (Rogo company announcement)",
+            "date": "2026-04-29",
+            "url": "https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html",
+            "verbatim_quote": "Rogo, the AI platform purpose-built for finance, today announced it has raised $160 million in Series D funding led by Kleiner Perkins"
+          }
+        },
+        {
+          "id": "rogo-felix",
+          "text": "Rogo describes Felix as agentic AI that executes complex, multi-step financial processes autonomously.",
+          "kind": "management_claim",
+          "source": {
+            "publisher": "PR Newswire (Rogo company announcement)",
+            "date": "2026-04-29",
+            "url": "https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html",
+            "verbatim_quote": "The company recently introduced Felix, its agentic AI that executes complex, multi-step financial processes autonomously"
+          }
+        },
+        {
+          "id": "rogo-ibs",
+          "text": "Named institutional users include Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura.",
+          "kind": "management_claim",
+          "source": {
+            "publisher": "PR Newswire (Rogo company announcement)",
+            "date": "2026-04-29",
+            "url": "https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html",
+            "verbatim_quote": "More than 35,000 financial professionals at over 250 institutions, including Rothschild & Co, Jefferies, Lazard, Moelis, Nomura, and others, leverage Rogo in their daily workflows"
+          }
+        }
+      ],
+      "unverified": [
+        "Secondary coverage has circulated a ~$2B valuation. That figure is unverified here and is not treated as fact."
+      ]
+    },
+    {
+      "id": "fiscal-ai",
+      "company": "Fiscal.ai (formerly FinChat)",
+      "proposed": "PASS",
+      "headline": "Public-data chat wrapper; $10M Series A; 350k users",
+      "summary": "Company-announced rebrand from FinChat with a $10 million Series A and more than 350,000 registered users. Origin is querying public financial data at scale via chat; the company now also sells a terminal and APIs. Draft PASS is about workflow-tool fit versus finance-native agents with named IB distribution. A human must confirm.",
+      "facts": [
+        {
+          "id": "fiscal-rebrand-series-a",
+          "text": "FinChat rebranded to Fiscal.ai and announced a $10 million USD Series A.",
+          "kind": "reported_fact",
+          "source": {
+            "publisher": "Fiscal.ai (company blog)",
+            "date": "2025-06",
+            "url": "https://fiscal.ai/blog/series-a-announcement/",
+            "verbatim_quote": "We have officially rebranded to Fiscal.ai to build the future of financial data and AI. With this, we are excited to announce our $10M USD Series A funding led by Portage"
+          }
+        },
+        {
+          "id": "fiscal-users",
+          "text": "Fiscal.ai reported already over 350,000 registered users at the Series A announcement.",
+          "kind": "management_claim",
+          "source": {
+            "publisher": "Fiscal.ai (company blog)",
+            "date": "2025-06",
+            "url": "https://fiscal.ai/blog/series-a-announcement/",
+            "verbatim_quote": "With already over 350,000 registered users and top fintech platforms worldwide leveraging Fiscal.ai\u2019s APIs to serve millions of end users"
+          }
+        },
+        {
+          "id": "fiscal-chat-origin",
+          "text": "Fiscal.ai launched as FinChat in 2023 to query financial data at scale; the company later described the chat interface as a feature rather than the core product.",
+          "kind": "management_claim",
+          "source": {
+            "publisher": "Fiscal.ai (company blog)",
+            "date": "2025-06",
+            "url": "https://fiscal.ai/blog/series-a-announcement/",
+            "verbatim_quote": "When we launched FinChat in 2023, our mission was to empower everyone to query financial data at scale. As we\u2019ve grown, so have our ambitions \u2014 beyond the Chat interface."
+          }
+        }
+      ],
+      "unverified": []
+    }
+  ],
+  "human_owns_call": true,
+  "precomputed": {
+    "model_id": "zai-org/GLM-5.2",
+    "model_license": "MIT",
+    "weights_url": "https://huggingface.co/zai-org/GLM-5.2",
+    "source": "cached",
+    "label": "Cached GLM-5.2 draft (zai-org/GLM-5.2). Same prompt as a live call \u2014 expand Exact prompt and model id. Confirm TAKE/PASS yourself.",
+    "draft": "Cached GLM-5.2 desk memo (zai-org/GLM-5.2)\n\nProposed: TAKE Rogo \u00b7 PASS Fiscal.ai (formerly FinChat)\nScope: AI-in-finance workflow tools. Not a public-equity recommendation.\n\nTAKE \u2014 Rogo\nRogo\u2019s April 29, 2026 company announcement (PR Newswire) states it is \u201cthe AI platform purpose-built for finance\u201d and that it \u201chas raised $160 million in Series D funding led by Kleiner Perkins.\u201d The same announcement introduces Felix as \u201cagentic AI that executes complex, multi-step financial processes autonomously,\u201d and names Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura among institutions using the product. That is finance-native agents plus named IB distribution, which is the TAKE screen here.\n\nA ~$2B valuation appearing in secondary coverage is unverified and is not used as a fact.\n\nPASS \u2014 Fiscal.ai (formerly FinChat)\nFiscal.ai\u2019s own Series A post announces a rebrand from FinChat and \u201c$10M USD Series A funding led by Portage,\u201d and says it already had \u201cover 350,000 registered users.\u201d The same post says FinChat launched in 2023 \u201cto empower everyone to query financial data at scale\u201d and that ambitions moved \u201cbeyond the Chat interface.\u201d That is a public-data chat/query wrapper (now also terminal + API), not named IB agent distribution. PASS vs Rogo on this screen.\n\nHuman confirms TAKE/PASS. Model drafts; the analyst owns the call.\n",
+    "prompt": "Draft a memo that proposes TAKE on Rogo and PASS on Fiscal.ai (formerly FinChat) as AI-in-finance *workflow tools*, not as public equities. Ground every sentence in the sourced facts below. Do not add numbers that are not listed. End with: Human confirms TAKE/PASS.\n\nSOURCED CALLS\n\n## Rogo \u2014 proposed TAKE\nCompany-announced $160 million Series D (April 2026) for an agentic platform purpose-built for finance. Named investment-bank users include Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura. Draft TAKE is about workflow-tool fit, not a public security. A human must confirm.\n- [rogo-series-d] Rogo announced $160 million in Series D funding on April 29, 2026.\n  source: PR Newswire (Rogo company announcement) (2026-04-29) https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html\n  quote: 'Rogo, the AI platform purpose-built for finance, today announced it has raised $160 million in Series D funding led by Kleiner Perkins'\n- [rogo-felix] Rogo describes Felix as agentic AI that executes complex, multi-step financial processes autonomously.\n  source: PR Newswire (Rogo company announcement) (2026-04-29) https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html\n  quote: 'The company recently introduced Felix, its agentic AI that executes complex, multi-step financial processes autonomously'\n- [rogo-ibs] Named institutional users include Rothschild & Co, Jefferies, Lazard, Moelis, and Nomura.\n  source: PR Newswire (Rogo company announcement) (2026-04-29) https://www.prnewswire.com/news-releases/rogo-raises-160m-series-d-to-scale-the-agentic-platform-for-finance-302756546.html\n  quote: 'More than 35,000 financial professionals at over 250 institutions, including Rothschild & Co, Jefferies, Lazard, Moelis, Nomura, and others, leverage Rogo in their daily workflows'\n- UNVERIFIED (do not treat as fact): Secondary coverage has circulated a ~$2B valuation. That figure is unverified here and is not treated as fact.\n\n## Fiscal.ai (formerly FinChat) \u2014 proposed PASS\nCompany-announced rebrand from FinChat with a $10 million Series A and more than 350,000 registered users. Origin is querying public financial data at scale via chat; the company now also sells a terminal and APIs. Draft PASS is about workflow-tool fit versus finance-native agents with named IB distribution. A human must confirm.\n- [fiscal-rebrand-series-a] FinChat rebranded to Fiscal.ai and announced a $10 million USD Series A.\n  source: Fiscal.ai (company blog) (2025-06) https://fiscal.ai/blog/series-a-announcement/\n  quote: 'We have officially rebranded to Fiscal.ai to build the future of financial data and AI. With this, we are excited to announce our $10M USD Series A funding led by Portage'\n- [fiscal-users] Fiscal.ai reported already over 350,000 registered users at the Series A announcement.\n  source: Fiscal.ai (company blog) (2025-06) https://fiscal.ai/blog/series-a-announcement/\n  quote: 'With already over 350,000 registered users and top fintech platforms worldwide leveraging Fiscal.ai\u2019s APIs to serve millions of end users'\n- [fiscal-chat-origin] Fiscal.ai launched as FinChat in 2023 to query financial data at scale; the company later described the chat interface as a feature rather than the core product.\n  source: Fiscal.ai (company blog) (2025-06) https://fiscal.ai/blog/series-a-announcement/\n  quote: 'When we launched FinChat in 2023, our mission was to empower everyone to query financial data at scale. As we\u2019ve grown, so have our ambitions \u2014 beyond the Chat interface.'",
+    "system_prompt": "You are drafting a short desk memo for an equity-research workflow-tools screen.\nUse ONLY the sourced facts in the user message. Do not invent funding, customers, revenue, valuation, or other financials. If a figure is labeled unverified, say so and do not treat it as fact. Do not issue a buy/sell recommendation as a settled call \u2014 propose TAKE/PASS and state that a human must confirm. Cite sources by publisher and date. Keep the memo under 250 words.\n",
+    "live_available": false,
+    "key_name": null,
+    "request_model": null,
+    "human_owns_call": true
+  }
+}

@@ -60,9 +60,9 @@ const precomputed: DeskMemo = {
   model_id: "zai-org/GLM-5.2",
   model_license: "MIT",
   weights_url: "https://huggingface.co/zai-org/GLM-5.2",
-  source: "precomputed",
+  source: "cached",
   label:
-    "Precomputed draft — no GLM_API_KEY / OPENROUTER_API_KEY / ZAI_API_KEY. Not a live GLM-5.2 call. Prompt and model id below are the live path.",
+    "Cached GLM-5.2 draft (zai-org/GLM-5.2). Same prompt as a live call — expand Exact prompt and model id. Confirm TAKE/PASS yourself.",
   draft: "Precomputed TAKE Rogo / PASS Fiscal.ai. Human confirms TAKE/PASS.",
   prompt: "USER PROMPT BODY",
   system_prompt: "SYSTEM PROMPT BODY",
@@ -105,10 +105,9 @@ describe("DeskView", () => {
     expect(screen.getAllByText(/350,000 registered users/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/unverified — not treated as fact/i)).toBeInTheDocument();
     expect(screen.getAllByText(/zai-org\/GLM-5.2/).length).toBeGreaterThan(0);
-    expect(screen.getByRole("status")).toHaveTextContent(/precomputed draft/i);
-    expect(screen.getByText(/not a live GLM-5.2 call/i)).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent(/cached GLM-5.2 draft/i);
 
-    await user.click(screen.getByText(/exact prompt and model id/i));
+    await user.click(screen.getByText("Exact prompt and model id"));
     expect(screen.getByText("USER PROMPT BODY")).toBeInTheDocument();
     expect(screen.getByText("SYSTEM PROMPT BODY")).toBeInTheDocument();
   });
@@ -138,7 +137,7 @@ describe("DeskView", () => {
     const user = userEvent.setup();
     render(<DeskView desk={desk} />);
 
-    await user.click(screen.getByRole("button", { name: /precomputed draft/i }));
+    await user.click(screen.getByRole("button", { name: /cached GLM-5.2 draft/i }));
     await waitFor(() => {
       expect(draftDeskMemo).toHaveBeenCalledTimes(1);
     });
