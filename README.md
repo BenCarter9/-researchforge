@@ -53,6 +53,7 @@ verifiably traceable to their sources rather than on breadth of analysis
 | `DATABASE_URL` | No | `postgresql+psycopg://forge:forge@localhost:5432/researchforge` | Matches the `docker-compose.yml` defaults. |
 | `SEC_USER_AGENT` | Yes, for any real SEC EDGAR fetch | `"ResearchForge you@example.com"` | SEC requires a descriptive User-Agent **with a contact email** on every request. Set this to your own contact info, not a placeholder — SEC will rate-limit or block generic/missing UAs. |
 | `ANTHROPIC_API_KEY` | Only for a real Claude analysis pass | — | All automated tests (pytest, vitest, Playwright) run against fakes and need no key. |
+| `GLM_API_KEY` / `OPENROUTER_API_KEY` / `ZAI_API_KEY` | Only for a live GLM-5.2 desk memo | — | Optional. First key found wins. No key → labeled precomputed draft on `/desk`. |
 | `RESEARCHFORGE_DEV_SEED` | No | unset | Set to `1` to register the dev-only `POST /api/dev/seed` route used by the Playwright e2e to seed a fixed demo project. **Must stay unset in normal or production use** — it is never wired in otherwise (see `api/app/main.py`). |
 | `RESEARCHFORGE_API_BASE` | No | `http://localhost:8000` | Used by the [evaluation harness](#evaluation-harness) CLI to find a running API. |
 
@@ -99,6 +100,9 @@ npm --prefix web run dev
 
 Open **http://localhost:3000/projects/new** and start a project with a
 ticker and a transcript file.
+
+For the 60-second workflow-tools demo, open **http://localhost:3000/desk**
+(no Postgres required for that page). See [Desk (GLM-5.2)](#desk-glm-52).
 
 ## Running the tests
 
@@ -154,6 +158,22 @@ This slice deliberately does **not** include:
   fetch are supported)
 - Real authentication (no user accounts / auth in this slice)
 - Vector search or embeddings (chunking is structural, not semantic)
+
+## Desk (GLM-5.2)
+
+`/desk` is a tiny sourced screen of two **AI-in-finance workflow tools**. It
+does not replace the evidence-grounded 10-K / transcript skeleton above.
+
+- **Model:** [GLM-5.2](https://huggingface.co/zai-org/GLM-5.2) open weights
+  (`zai-org/GLM-5.2`), MIT license, via an optional OpenAI-compatible API.
+- **Facts are cited.** Every dollar figure and named customer on the desk is
+  copied from a linked company or wire source. Unverified items stay labeled
+  (including any Rogo valuation rumor). The model does not invent financials.
+- **Human owns TAKE/PASS.** GLM-5.2 (or a clearly labeled precomputed fallback
+  when no `GLM_API_KEY` / `OPENROUTER_API_KEY` / `ZAI_API_KEY` is set) drafts
+  a memo; the analyst confirms or rejects the call. The exact prompt and
+  model id are shown on the page so a screen recording still proves the
+  model choice without a live key.
 
 ## Disclaimer
 

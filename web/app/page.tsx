@@ -21,6 +21,12 @@ export default function HomePage() {
           >
             Start a project
           </Link>
+          <Link
+            href="/desk"
+            className="inline-flex items-center rounded-sm border border-rule bg-surface px-5 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-ink/40"
+          >
+            Open the desk
+          </Link>
           <span className="font-sans text-xs tracking-wide text-mute">
             Snapshot · Business · Financials · Risks
           </span>

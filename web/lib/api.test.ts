@@ -1,5 +1,5 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { getReport } from "./api";
+import { draftDeskMemo, getDesk, getReport } from "./api";
 import type { Report } from "./types";
 
 const mockReport: Report = {
@@ -96,5 +96,37 @@ describe("getReport", () => {
     });
 
     await expect(getReport("missing")).rejects.toThrow("project not found");
+  });
+});
+
+describe("desk API helpers", () => {
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("getDesk fetches /api/desk", async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ model_id: "zai-org/GLM-5.2", calls: [] }),
+      text: async () => "",
+    });
+    const desk = await getDesk();
+    expect(fetch).toHaveBeenCalledWith("/api/desk");
+    expect(desk.model_id).toBe("zai-org/GLM-5.2");
+  });
+
+  it("draftDeskMemo POSTs /api/desk/memo", async () => {
+    (fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: async () => ({ source: "precomputed", model_id: "zai-org/GLM-5.2" }),
+      text: async () => "",
+    });
+    const memo = await draftDeskMemo();
+    expect(fetch).toHaveBeenCalledWith("/api/desk/memo", { method: "POST" });
+    expect(memo.source).toBe("precomputed");
   });
 });

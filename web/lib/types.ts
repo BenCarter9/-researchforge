@@ -72,3 +72,56 @@ export interface StageStatus {
   status: "pending" | "running" | "done" | "error";
   error: string | null;
 }
+
+export interface DeskSource {
+  publisher: string;
+  date: string;
+  url: string;
+  verbatim_quote: string;
+}
+
+export interface DeskFact {
+  id: string;
+  text: string;
+  kind: string;
+  source: DeskSource;
+}
+
+export interface DeskCall {
+  id: string;
+  company: string;
+  proposed: "TAKE" | "PASS";
+  headline: string;
+  summary: string;
+  facts: DeskFact[];
+  unverified: string[];
+}
+
+export interface DeskMemo {
+  model_id: string;
+  model_license: string;
+  weights_url: string;
+  source: "live" | "precomputed";
+  label: string;
+  draft: string;
+  prompt: string;
+  system_prompt: string;
+  live_available: boolean;
+  key_name: string | null;
+  request_model: string | null;
+  human_owns_call: boolean;
+}
+
+export interface DeskPayload {
+  model_id: string;
+  model_license: string;
+  weights_url: string;
+  live_available: boolean;
+  key_name: string | null;
+  request_model: string | null;
+  prompt: string;
+  system_prompt: string;
+  calls: DeskCall[];
+  human_owns_call: boolean;
+  precomputed: DeskMemo;
+}
