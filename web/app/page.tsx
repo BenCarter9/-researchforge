@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const DEMO_REPORT = "/projects/e2e-project/report";
+
 export default function HomePage() {
   return (
     <main className="relative mx-auto flex min-h-screen max-w-5xl flex-col justify-center px-6 py-16">
@@ -16,14 +18,23 @@ export default function HomePage() {
         </p>
         <div className="mt-10 flex flex-wrap items-center gap-4">
           <Link
-            href="/projects/new"
+            href={DEMO_REPORT}
             className="inline-flex items-center rounded-sm bg-ink px-5 py-3 font-sans text-sm font-medium text-surface transition-colors hover:bg-ink/90"
+          >
+            Open GOOGL report
+          </Link>
+          <Link
+            href="/desk"
+            className="inline-flex items-center rounded-sm border border-rule bg-surface px-5 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-ink/40"
+          >
+            Open the desk
+          </Link>
+          <Link
+            href="/projects/new"
+            className="font-sans text-sm text-mute underline-offset-4 hover:text-ink hover:underline"
           >
             Start a project
           </Link>
-          <span className="font-sans text-xs tracking-wide text-mute">
-            Snapshot · Business · Financials · Risks
-          </span>
         </div>
       </div>
     </main>

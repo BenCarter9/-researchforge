@@ -101,6 +101,8 @@ def test_build_table_revenue_row_values_and_yoy():
     assert revenue_row["values"]["FY2025"] == 1180.0
     assert revenue_row["values"]["FY2024"] == 1000.0
     assert revenue_row["yoy"] == 0.18
+    assert revenue_row["yoy_calc"]["formula"] == "(curr - prev) / prev"
+    assert revenue_row["yoy_calc"]["inputs"] == {"curr": 1180.0, "prev": 1000.0}
 
 
 def test_build_table_gross_profit_missing_year_is_unavailable():

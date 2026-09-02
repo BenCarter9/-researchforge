@@ -1,4 +1,4 @@
-import type { Chunk, Report, StageStatus } from "./types";
+import type { Chunk, DeskMemo, DeskPayload, Report, StageStatus } from "./types";
 
 // All requests use relative URLs so the Next.js rewrite in next.config.mjs
 // (`/api/:path*` -> the FastAPI backend) handles routing in both dev and
@@ -68,5 +68,15 @@ export async function markCitation(
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ valid }),
   });
+  return json(res);
+}
+
+export async function getDesk(): Promise<DeskPayload> {
+  const res = await fetch("/api/desk");
+  return json(res);
+}
+
+export async function draftDeskMemo(): Promise<DeskMemo> {
+  const res = await fetch("/api/desk/memo", { method: "POST" });
   return json(res);
 }

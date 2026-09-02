@@ -162,21 +162,24 @@ def _row_series(key: str, facts: dict[str, dict[str, float]]) -> dict[str, float
     return facts.get(key, {})
 
 
-def _row_yoy(series: dict[str, float], years_sorted: list[str], key: str) -> float | str:
+def _row_yoy(series: dict[str, float], years_sorted: list[str], key: str) -> tuple[float | str, dict | None]:
     # CAGR is a multi-year metric — YoY is not meaningful.
     if key == "revenue_cagr":
-        return _UNAVAILABLE
+        return _UNAVAILABLE, None
     # YoY always ties to the table's two most-recent COLUMNS (the last two
     # entries of the ascending fiscal-year column list), using this row's
     # values for those two columns specifically. A row missing either of
     # those two columns reports "unavailable" rather than falling back to
     # an older, stale delta.
     if len(years_sorted) < 2:
-        return _UNAVAILABLE
+        return _UNAVAILABLE, None
     latest, prior = years_sorted[-1], years_sorted[-2]
     if latest not in series or prior not in series:
-        return _UNAVAILABLE
-    return growth(series[latest], series[prior]).result
+        return _UNAVAILABLE, None
+    calc = growth(series[latest], series[prior])
+    if calc.result is None:
+        return _UNAVAILABLE, None
+    return calc.result, calc.to_dict()
 
 
 def build_table(facts: dict[str, dict[str, float]]) -> list[dict]:
@@ -185,12 +188,14 @@ def build_table(facts: dict[str, dict[str, float]]) -> list[dict]:
     for label, key in _ROWS + _DERIVED_ROWS:
         series = _row_series(key, facts)
         values = {year: series.get(year, _UNAVAILABLE) for year in years_sorted}
+        yoy, yoy_calc = _row_yoy(series, years_sorted, key)
         table.append(
             {
                 "metric": label,
                 "key": key,
                 "values": values,
-                "yoy": _row_yoy(series, years_sorted, key),
+                "yoy": yoy,
+                "yoy_calc": yoy_calc,
             }
         )
     return table

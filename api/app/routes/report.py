@@ -17,11 +17,14 @@ _SECTIONS = ("snapshot", "business", "financials", "risks")
 def _citation_dict(citation: ClaimCitation | None) -> dict | None:
     if citation is None:
         return None
+    chunk = citation.chunk
     return {
         "id": citation.id,
         "chunk_id": citation.chunk_id,
         "verbatim_quote": citation.verbatim_quote,
         "verbatim_verified": citation.verbatim_verified,
+        "passage": chunk.text if chunk is not None else None,
+        "section_label": chunk.section_label if chunk is not None else None,
     }
 
 

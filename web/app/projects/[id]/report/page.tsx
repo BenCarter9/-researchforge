@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 import { FinancialsTable } from "@/components/FinancialsTable";
 import type { OpenedCitation } from "@/components/ClaimLine";
@@ -8,7 +9,7 @@ import { SectionView } from "@/components/SectionView";
 import { SourceViewer } from "@/components/SourceViewer";
 import { getReport } from "@/lib/api";
 import { cn } from "@/lib/cn";
-import type { Report } from "@/lib/types";
+import type { Report, YoyCalc } from "@/lib/types";
 
 type TabId = "snapshot" | "business" | "financials" | "risks";
 
@@ -31,6 +32,10 @@ export default function ReportPage({
   const [selectedCitation, setSelectedCitation] = useState<OpenedCitation | null>(
     null
   );
+  const [selectedFormula, setSelectedFormula] = useState<{
+    metric: string;
+    calc: YoyCalc;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,9 +81,20 @@ export default function ReportPage({
       {report && (
         <>
           <header className="mb-10 animate-fade-up border-b border-rule pb-8">
-            <p className="font-sans text-[0.7rem] font-medium uppercase tracking-[0.18em] text-mute">
-              ResearchForge
-            </p>
+            <div className="flex flex-wrap items-baseline justify-between gap-4">
+              <Link
+                href="/"
+                className="font-sans text-[0.7rem] font-medium uppercase tracking-[0.18em] text-mute hover:text-ink"
+              >
+                ResearchForge
+              </Link>
+              <Link
+                href="/desk"
+                className="font-sans text-sm font-medium text-accent underline-offset-4 hover:underline"
+              >
+                Open the desk
+              </Link>
+            </div>
             <h1 className="mt-3 font-display text-5xl tracking-tight text-ink sm:text-6xl">
               {report.project.ticker}
             </h1>
@@ -123,22 +139,37 @@ export default function ReportPage({
                 {activeTab === "snapshot" && (
                   <SectionView
                     section={report.snapshot}
-                    onOpenCitation={setSelectedCitation}
+                    onOpenCitation={(citation) => {
+                      setSelectedFormula(null);
+                      setSelectedCitation(citation);
+                    }}
                   />
                 )}
                 {activeTab === "business" && (
                   <SectionView
                     section={report.business}
-                    onOpenCitation={setSelectedCitation}
+                    onOpenCitation={(citation) => {
+                      setSelectedFormula(null);
+                      setSelectedCitation(citation);
+                    }}
                   />
                 )}
                 {activeTab === "financials" && (
                   <div className="space-y-8 px-3 py-4 sm:px-4">
-                    <FinancialsTable table={report.financials.table} />
+                    <FinancialsTable
+                      table={report.financials.table}
+                      onOpenFormula={(payload) => {
+                        setSelectedCitation(null);
+                        setSelectedFormula(payload);
+                      }}
+                    />
                     <div className="border-t border-rule pt-2">
                       <SectionView
                         section={report.financials}
-                        onOpenCitation={setSelectedCitation}
+                        onOpenCitation={(citation) => {
+                          setSelectedFormula(null);
+                          setSelectedCitation(citation);
+                        }}
                       />
                     </div>
                   </div>
@@ -146,21 +177,66 @@ export default function ReportPage({
                 {activeTab === "risks" && (
                   <SectionView
                     section={report.risks}
-                    onOpenCitation={setSelectedCitation}
+                    onOpenCitation={(citation) => {
+                      setSelectedFormula(null);
+                      setSelectedCitation(citation);
+                    }}
                   />
                 )}
               </div>
             </div>
 
-            {selectedCitation && (
+            {(selectedCitation || selectedFormula) && (
               <aside className="w-full shrink-0 lg:sticky lg:top-8 lg:w-[22rem]">
-                <SourceViewer
-                  chunkId={selectedCitation.chunkId}
-                  quote={selectedCitation.quote}
-                  claimText={selectedCitation.claimText}
-                  citationId={selectedCitation.citationId}
-                  onClose={() => setSelectedCitation(null)}
-                />
+                {selectedCitation && (
+                  <SourceViewer
+                    chunkId={selectedCitation.chunkId}
+                    quote={selectedCitation.quote}
+                    claimText={selectedCitation.claimText}
+                    citationId={selectedCitation.citationId}
+                    passage={selectedCitation.passage}
+                    sectionLabel={selectedCitation.sectionLabel}
+                    onClose={() => setSelectedCitation(null)}
+                  />
+                )}
+                {selectedFormula && (
+                  <div className="animate-slide-in space-y-4 rounded-sm bg-panel p-5 text-surface">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <h2 className="font-display text-lg tracking-tight text-surface">
+                        Formula
+                      </h2>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedFormula(null)}
+                        aria-label="Close formula panel"
+                        className="text-xs text-surface/60 hover:text-surface"
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <p className="font-serif text-sm text-surface/90">
+                      {selectedFormula.metric} YoY
+                    </p>
+                    <p className="font-sans text-sm">
+                      <code>{selectedFormula.calc.formula}</code>
+                    </p>
+                    <dl className="space-y-1 font-sans text-xs text-surface/70">
+                      {Object.entries(selectedFormula.calc.inputs).map(
+                        ([name, value]) => (
+                          <div key={name} className="flex justify-between gap-4">
+                            <dt>{name}</dt>
+                            <dd className="tabular-nums">
+                              {value == null ? "unavailable" : value.toLocaleString("en-US")}
+                            </dd>
+                          </div>
+                        )
+                      )}
+                    </dl>
+                    <p className="font-sans text-xs text-surface/50">
+                      Deterministic Python arithmetic. The model does not compute this.
+                    </p>
+                  </div>
+                )}
               </aside>
             )}
           </div>
